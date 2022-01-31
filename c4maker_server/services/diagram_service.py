@@ -23,7 +23,7 @@ class DiagramService:
     def update_diagram(self, diagram: Diagram, user: User):
         persisted_diagram = self.find_diagram_by_id(diagram.id, user)
 
-        DiagramService.__prepare_to_persist(persisted_diagram, user, new_diagram=diagram)
+        DiagramService.__prepare_to_persist(diagram, user, persisted_diagram=persisted_diagram)
         self.diagram_repository.update(diagram)
 
     def delete_diagram(self, diagram_id: UUID, user: User):
@@ -48,17 +48,20 @@ class DiagramService:
 
     @staticmethod
     def __prepare_to_persist(diagram: Diagram, user: User, is_delete: bool = False,
-                             new_diagram: Optional[Diagram] = None):
-        DiagramService.__check_permission_to_persist(diagram, user, is_delete)
+                             persisted_diagram: Optional[Diagram] = None):
+        DiagramService.check_permission_to_persist(persisted_diagram if persisted_diagram else diagram, user,
+                                                   is_delete)
 
         if is_delete:
             return
 
         diagram.set_track_data(user, datetime.now())
 
-        if new_diagram:
-            diagram.name = new_diagram.name
-            diagram.description = new_diagram.description
+        if persisted_diagram:
+            diagram.created_by = persisted_diagram.created_by
+            diagram.created_at = persisted_diagram.created_at
+            diagram.modified_by = persisted_diagram.modified_by
+            diagram.modified_at = persisted_diagram.modified_at
 
         DiagramService.__check_required_fields(diagram)
 
@@ -68,7 +71,7 @@ class DiagramService:
             raise InvalidEntityException("Diagram", ["name"])
 
     @staticmethod
-    def __check_permission_to_persist(diagram: Diagram, user: User, is_delete: bool = False):
+    def check_permission_to_persist(diagram: Diagram, user: User, is_delete: bool = False):
         if not diagram.id:
             return
 

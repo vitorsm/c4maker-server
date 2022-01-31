@@ -1,5 +1,6 @@
 import unittest
 from copy import deepcopy
+from datetime import datetime
 from unittest.mock import Mock
 from uuid import uuid4
 
@@ -21,7 +22,8 @@ class TestDiagramService(unittest.TestCase):
         self.user1 = User(id=uuid4(), name="", login="", password="", shared_diagrams=[])
         self.user2 = User(id=uuid4(), name="", login="", password="", shared_diagrams=[])
 
-        self.diagram1 = Diagram(id=uuid4(), name="Diagram 1", description=None, created_by=self.user2)
+        self.diagram1 = Diagram(id=uuid4(), name="Diagram 1", description=None, created_by=self.user2,
+                                created_at=datetime.now(), modified_by=self.user2, modified_at=datetime.now())
         self.diagram2 = Diagram(id=uuid4(), name="Diagram 1", description=None, created_by=self.user2)
 
     def test_create_diagram_success(self):
@@ -29,7 +31,12 @@ class TestDiagramService(unittest.TestCase):
         self.repository.create.return_value = None
 
         self.service.create_diagram(diagram, self.user1)
+
         self.assertEqual(1, self.repository.create.call_count)
+        self.assertIsNotNone(diagram.created_by)
+        self.assertIsNotNone(diagram.created_at)
+        self.assertIsNotNone(diagram.modified_by)
+        self.assertIsNotNone(diagram.modified_at)
 
     def test_create_diagram_without_name(self):
         diagram = Diagram(id=None, name="", description=None)
@@ -44,8 +51,19 @@ class TestDiagramService(unittest.TestCase):
         self.repository.update.return_value = None
         self.repository.find_by_id.return_value = self.diagram1
 
-        self.service.update_diagram(self.diagram1, self.user2)
+        new_name = "new name"
+        new_description = "new description"
+        diagram = Diagram(id=self.diagram1.id, name=new_name, description=new_description)
+
+        self.service.update_diagram(diagram, self.user2)
+
         self.assertEqual(1, self.repository.update.call_count)
+        self.assertEqual(new_name, diagram.name)
+        self.assertEqual(new_description, diagram.description)
+        self.assertIsNotNone(diagram.created_by)
+        self.assertIsNotNone(diagram.created_at)
+        self.assertIsNotNone(diagram.modified_by)
+        self.assertIsNotNone(diagram.modified_at)
 
     def test_update_diagram_shared_success(self):
         self.repository.update.return_value = None
