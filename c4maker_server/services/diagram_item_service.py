@@ -58,11 +58,10 @@ class DiagramItemService:
 
         self.__check_permission_to_persist(persisted_diagram_item if persisted_diagram_item else diagram_item, user)
 
-        if persisted_diagram_item and diagram_item.diagram != persisted_diagram_item.diagram:
-            raise InvalidEntityException("DiagramItem", ["diagram"])
-
         if is_delete:
             return
+
+        DiagramItemService.__check_missing_fields(diagram_item, persisted_diagram_item)
 
         if persisted_diagram_item:
             diagram_item.created_by = persisted_diagram_item.created_by
@@ -71,6 +70,24 @@ class DiagramItemService:
             diagram_item.modified_at = persisted_diagram_item.modified_at
 
         diagram_item.set_track_data(user, datetime.now())
+
+    @staticmethod
+    def __check_missing_fields(diagram_item: DiagramItem, persisted_diagram_item: Optional[DiagramItem]):
+        missing_fields = []
+
+        if persisted_diagram_item and diagram_item.diagram != persisted_diagram_item.diagram:
+            missing_fields.append("diagram")
+        if not diagram_item.diagram:
+            missing_fields.append("diagram")
+        if not diagram_item.name:
+            missing_fields.append("name")
+        if not diagram_item.details:
+            missing_fields.append("details")
+        if not diagram_item.item_description:
+            missing_fields.append("item_description")
+
+        if missing_fields:
+            raise InvalidEntityException("DiagramItem", missing_fields)
 
     def __check_permission_to_persist(self, diagram_item: DiagramItem, user: User):
         self.diagram_service.check_permission_to_persist(diagram_item.diagram, user)

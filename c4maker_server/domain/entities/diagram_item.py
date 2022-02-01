@@ -1,12 +1,11 @@
 import enum
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
 from c4maker_server.domain.entities.diagram import Diagram
 from c4maker_server.domain.entities.diagram_item_relationship import DiagramItemRelationship
-from c4maker_server.domain.entities.user import User
 
 
 class DiagramItemType(enum.Enum):
@@ -18,19 +17,19 @@ class DiagramItemType(enum.Enum):
 
 @dataclass
 class DiagramItem:
-    id: UUID
+    id: Optional[UUID]
     name: str
     item_description: str
     details: str
     item_type: DiagramItemType
-    relationships: List[DiagramItemRelationship]
-    parent: Optional['DiagramItem']
     diagram: Diagram
+    relationships: List[DiagramItemRelationship] = field(default=list)
+    parent: Optional['DiagramItem'] = field(default=None)
 
-    created_by: User
-    modified_by: User
-    created_at: datetime
-    modified_at: datetime
+    created_by: Optional = field(default=None)
+    modified_by: Optional = field(default=None)
+    created_at: Optional[datetime] = field(default=None)
+    modified_at: Optional[datetime] = field(default=None)
 
     def __eq__(self, other: 'DiagramItem'):
         return isinstance(other, DiagramItem) and self.id == other.id
@@ -38,7 +37,7 @@ class DiagramItem:
     def __hash__(self):
         return hash(self.id)
 
-    def set_track_data(self, user: User, modified_date: datetime):
+    def set_track_data(self, user, modified_date: datetime):
         self.modified_by = user
         self.modified_at = modified_date
 
