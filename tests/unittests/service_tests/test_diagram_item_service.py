@@ -7,6 +7,7 @@ from c4maker_server.domain.entities.diagram import Diagram
 from c4maker_server.domain.entities.diagram_item import DiagramItem, DiagramItemType
 from c4maker_server.domain.entities.user import User
 from c4maker_server.domain.entities.user_access import UserAccess, UserPermission
+from c4maker_server.domain.exceptions.entity_not_found_exception import EntityNotFoundException
 from c4maker_server.domain.exceptions.invalid_entity_exception import InvalidEntityException
 from c4maker_server.domain.exceptions.permission_exception import PermissionException
 from c4maker_server.services.diagram_item_service import DiagramItemService
@@ -105,4 +106,39 @@ class TestDiagramItemService(unittest.TestCase):
         self.assertEqual(0, self.repository.update.call_count)
         self.assertIn("diagram", str(exception_context.exception))
 
+    def test_delete_diagram_item_success(self):
+        self.repository.find_by_id.return_value = self.diagram_item1
+        self.diagram_service.find_diagram_by_id.return_value = self.diagram1
+        self.diagram_service.check_permission_to_persist.return_value = True
 
+        self.repository.delete.return_value = None
+
+        self.service.delete_diagram_item(self.diagram_item1.id, self.user1)
+
+        self.assertEqual(1, self.repository.delete.call_count)
+
+    def test_delete_diagram_without_permission(self):
+        self.repository.find_by_id.return_value = self.diagram_item1
+        self.diagram_service.find_diagram_by_id.return_value = self.diagram1
+
+        self.diagram_service.check_permission_to_persist.side_effect = \
+            PermissionException('Test', self.diagram1.id, self.user1)
+
+        self.repository.delete.return_value = None
+
+        with self.assertRaises(PermissionException):
+            self.service.delete_diagram_item(self.diagram_item1.id, self.user1)
+
+        self.assertEqual(0, self.repository.delete.call_count)
+
+    def test_delete_diagram_item_without_diagram(self):
+        self.repository.find_by_id.return_value = self.diagram_item1
+        self.diagram_service.find_diagram_by_id.side_effect = EntityNotFoundException("Diagram", self.diagram1.id)
+        self.diagram_service.check_permission_to_persist.return_value = True
+
+        self.repository.delete.return_value = None
+
+        with self.assertRaises(EntityNotFoundException):
+            self.service.delete_diagram_item(self.diagram_item1.id, self.user1)
+
+        self.assertEqual(0, self.repository.delete.call_count)
