@@ -6,7 +6,6 @@ from uuid import uuid4
 from c4maker_server.domain.entities.diagram import Diagram
 from c4maker_server.domain.entities.diagram_item import DiagramItem, DiagramItemType
 from c4maker_server.domain.entities.user import User
-from c4maker_server.domain.entities.user_access import UserAccess, UserPermission
 from c4maker_server.domain.exceptions.entity_not_found_exception import EntityNotFoundException
 from c4maker_server.domain.exceptions.invalid_entity_exception import InvalidEntityException
 from c4maker_server.domain.exceptions.permission_exception import PermissionException
@@ -44,7 +43,7 @@ class TestDiagramItemService(unittest.TestCase):
         self.assertEqual(1, self.repository.create.call_count)
 
     def test_create_item_diagram_missing_fields(self):
-        diagram_item = DiagramItem(id=None, name="", item_description=None, details="",
+        diagram_item = DiagramItem(id=None, name="", item_description="", details="",
                                    item_type=DiagramItemType.COMPONENT, diagram=Diagram(id=self.diagram1.id, name="",
                                                                                         description=None))
 
@@ -77,7 +76,7 @@ class TestDiagramItemService(unittest.TestCase):
         self.assertIsNotNone(diagram_item.modified_by)
 
     def test_update_diagram_item_missing_fields(self):
-        diagram_item = DiagramItem(id=self.diagram_item1.id, name="", item_description=None, details="",
+        diagram_item = DiagramItem(id=self.diagram_item1.id, name="", item_description="", details="",
                                    item_type=DiagramItemType.COMPONENT, diagram=Diagram(id=self.diagram1.id, name="",
                                                                                         description=None))
 

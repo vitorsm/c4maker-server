@@ -49,7 +49,7 @@ class DiagramItemService:
         if not user.allowed_to_view(diagram):
             raise PermissionException("Diagram", diagram_id, user)
 
-        return self.diagram_item_repository.find_all_by_diagram(diagram_id)
+        return self.diagram_item_repository.find_all_by_diagram(diagram)
 
     def __prepare_to_persist(self, diagram_item: DiagramItem, user: User, is_delete: bool = False,
                              persisted_diagram_item: Optional[DiagramItem] = None):
