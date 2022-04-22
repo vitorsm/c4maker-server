@@ -15,7 +15,9 @@ class DiagramItemDB(BaseModel):
     item_type = Column(String, nullable=False)
     diagram_id = Column(String, ForeignKey("diagram.id"), nullable=False)
     parent_id = Column(String, ForeignKey("diagram_item.id"), nullable=False)
-    relationships = relationship("DiagramItemRelationshipDB", lazy="select", cascade="all, delete-orphan")
+    relationships = relationship("DiagramItemRelationshipDB",
+                                 foreign_keys="DiagramItemRelationshipDB.from_diagram_item_id", lazy="select",
+                                 cascade="all, delete-orphan")
 
     created_by = Column(String, ForeignKey("user.id"), nullable=False)
     modified_by = Column(String, ForeignKey("user.id"), nullable=False)
