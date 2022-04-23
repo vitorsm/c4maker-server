@@ -1,5 +1,6 @@
 import os
 from unittest import TestCase
+from uuid import UUID
 
 from flask import Flask
 from flask_jwt import JWT
@@ -7,13 +8,15 @@ from flask_sqlalchemy import SQLAlchemy
 
 from c4maker_server.adapters.models import BaseModel
 from c4maker_server.adapters.mysql.mysql_client import MySQLClient
+from c4maker_server.domain.entities.user import User
 
 
 class BaseIntegTest(TestCase):
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     TESTING = True
     ENCRYPT_SECRET_KEY = "tests"
-    DEFAULT_ID = "00000000-0000-0000-0000-000000000000"
+    DEFAULT_ID = UUID("00000000-0000-0000-0000-000000000000")
+    DEFAULT_USER = User(id=DEFAULT_ID, name="User 1", login="user", password="12345", shared_diagrams=[])
 
     app: Flask
     mysql_client: MySQLClient
@@ -34,22 +37,23 @@ class BaseIntegTest(TestCase):
         return self.app
 
     def setUp(self):
-        BaseModel.metadata.create_all(self.db.get_engine())
+        BaseModel.metadata.create_all(self.mysql_client.db.get_engine())
         self.initial_load()
-        self.db.session.commit()
+        self.mysql_client.db.session.commit()
 
     def initial_load(self):
-        file_path = BaseIntegTest.get_current_dir() + "resources/initial_load.sql"
+        file_path = BaseIntegTest.get_project_dir() + "resources/initial_load.sql"
         file = open(file_path)
         for query in file.read().split(";"):
             if query.strip():
-                self.db.session.execute(query.strip())
+                self.mysql_client.db.session.execute(query.strip())
         file.close()
 
     def tearDown(self):
-        self.db.session.remove()
-        self.db.drop_all()
+        self.mysql_client.db.session.remove()
+        self.mysql_client.db.drop_all()
 
     @staticmethod
-    def get_current_dir():
-        return os.getcwd()
+    def get_project_dir():
+        path = os.getcwd()
+        return path.split("c4maker-server")[0] + "c4maker-server/"

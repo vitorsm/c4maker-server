@@ -36,8 +36,8 @@ class DiagramDB(BaseModel):
         self.name = diagram.name
         self.description = diagram.description
 
-        self.created_by = diagram.created_by.id
-        self.modified_by = diagram.modified_by.id
+        self.created_by = str(diagram.created_by.id)
+        self.modified_by = str(diagram.modified_by.id)
         self.created_at = diagram.created_at
         self.modified_at = diagram.modified_at
 

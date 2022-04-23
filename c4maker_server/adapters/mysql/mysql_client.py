@@ -40,24 +40,26 @@ class MySQLClient:
 
     @staticmethod
     def __handle_integrity_error(exception: IntegrityError, entity: str):
-        if "UNIQUE" in exception.args[0] or "Duplicate" in exception.args[0]:
-            if "UNIQUE" in exception.args[0]:
-                field = exception.args[0].split(': ')[1]
+        if "UNIQUE" not in exception.args[0] and "Duplicate" not in exception.args[0]:
+            raise exception
+
+        entity = entity.split("DB")[0]
+
+        if "UNIQUE" in exception.args[0]:
+            field = exception.args[0].split(': ')[1]
+        else:
+            field = exception.args[0].split('\' for key \'')[1][:-3].split('.')[1]
+        value = None
+
+        if "." in field:
+            field = field.split(".")[1]
+
+        index = sql_utils.get_position_of_field_in_insert_query(exception.statement, field)
+
+        if exception.params and len(exception.params) > index >= 0:
+            if type(exception.params) == list or type(exception.params) == tuple:
+                value = exception.params[index]
             else:
-                field = exception.args[0].split('\' for key \'')[1][:-3].split('.')[1]
-            value = None
+                value = exception.params[field]
 
-            if "." in field:
-                field = field.split(".")[1]
-
-            index = sql_utils.get_position_of_field_in_insert_query(exception.statement, field)
-
-            if exception.params and len(exception.params) > index >= 0:
-                if type(exception.params) == list or type(exception.params) == tuple:
-                    value = exception.params[index]
-                else:
-                    value = exception.params[field]
-
-            raise DuplicateEntityException(entity, value)
-
-        raise exception
+        raise DuplicateEntityException(entity, value)

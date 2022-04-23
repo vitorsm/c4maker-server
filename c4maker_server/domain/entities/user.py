@@ -14,6 +14,9 @@ class User:
     password: str
     shared_diagrams: List[UserAccess]
 
+    def __eq__(self, other):
+        return isinstance(other, User) and other.id == self.id
+
     def is_owner(self, diagram: Diagram) -> bool:
         return diagram.created_by == self
 

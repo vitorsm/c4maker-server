@@ -30,6 +30,10 @@ class UserDB(BaseModel):
     def __hash__(self):
         return hash(self.id)
 
-    def to_entity(self) -> User:
+    def to_entity(self, reduced: bool = True) -> User:
+        shared_diagrams = list()
+        if not reduced:
+            shared_diagrams = [u.to_entity() for u in self.user_access]
+
         return User(id=UUID(self.id), name=self.name, login=self.login, password=self.password,
-                    shared_diagrams=[u.to_entity() for u in self.user_access])
+                    shared_diagrams=shared_diagrams)

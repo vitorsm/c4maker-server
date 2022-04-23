@@ -19,7 +19,7 @@ class DiagramItemDB(BaseModel):
     details = Column(String, nullable=True)
     item_type = Column(String, nullable=False)
     diagram_id = Column(String, ForeignKey("diagram.id"), nullable=False)
-    parent_id = Column(String, ForeignKey("diagram_item.id"), nullable=False)
+    parent_id = Column(String, ForeignKey("diagram_item.id"), nullable=True)
     relationships = relationship("DiagramItemRelationshipDB",
                                  foreign_keys="DiagramItemRelationshipDB.from_diagram_item_id", lazy="select",
                                  cascade="all, delete-orphan")
@@ -29,9 +29,9 @@ class DiagramItemDB(BaseModel):
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     modified_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    parent = relationship("DiagramItemDB", lazy="select")
-    created_by_obj = relationship("DiagramItemDB", foreign_keys="DiagramItemDB.created_by")
-    modified_by_obj = relationship("DiagramItemDB", foreign_keys="DiagramItemDB.modified_by")
+    parent = relationship("DiagramItemDB", foreign_keys="DiagramItemDB.parent_id", lazy="select", remote_side=[id])
+    created_by_obj = relationship("UserDB", foreign_keys="DiagramItemDB.created_by")
+    modified_by_obj = relationship("UserDB", foreign_keys="DiagramItemDB.modified_by")
     diagram = relationship("DiagramDB", lazy="select")
 
     def __init__(self, diagram_item: DiagramItem):
@@ -49,11 +49,11 @@ class DiagramItemDB(BaseModel):
         self.item_description = diagram_item.item_description
         self.details = diagram_item.details
         self.item_type = diagram_item.item_type.name
-        self.diagram_id = diagram_item.diagram.id
-        self.parent_id = diagram_item.parent.id if diagram_item.parent else None
+        self.diagram_id = str(diagram_item.diagram.id)
+        self.parent_id = str(diagram_item.parent.id) if diagram_item.parent else None
 
-        self.created_by = diagram_item.created_by.id
-        self.modified_by = diagram_item.modified_by.id
+        self.created_by = str(diagram_item.created_by.id)
+        self.modified_by = str(diagram_item.modified_by.id)
         self.created_at = diagram_item.created_at
         self.modified_at = diagram_item.modified_at
 
@@ -67,7 +67,8 @@ class DiagramItemDB(BaseModel):
         relationships = [r.to_entity() for r in self.relationships]
         parent = None
         if self.parent_id:
-            parent = self.parent.to_entity(diagram)
+            parent_db = self.parent[0] if isinstance(self.parent, list) else self.parent
+            parent = parent_db.to_entity(diagram)
 
         return DiagramItem(id=UUID(self.id), name=self.name, item_description=self.item_description,
                            details=self.details, relationships=relationships, parent=parent,

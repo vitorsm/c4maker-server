@@ -1,17 +1,32 @@
+from typing import Any
+
 from c4maker_server.adapters.mysql.mysql_diagram_repository import MySQLDiagramRepository
-from tests.integration_tests.base_integ_test import BaseIntegTest
+from c4maker_server.domain.entities.diagram import Diagram
+from c4maker_server.utils import date_utils
+from tests.integration_tests.adapters.mysql.generic_mysql_test import GenericMySQLTest
 
 
-class TestMySQLDiagramRepository(BaseIntegTest):
+class TestMySQLDiagramRepository(GenericMySQLTest):
+    repository: MySQLDiagramRepository = None
 
-    def setUp(self):
-        super().setUp()
-        self.repository = MySQLDiagramRepository(self.mysql_client)
+    def get_repository(self) -> Any:
+        if not self.repository:
+            self.repository = MySQLDiagramRepository(self.mysql_client)
 
-    def test_find_diagram(self):
-        diagram = self.repository.find_by_id(self.DEFAULT_ID)
+        return self.repository
 
-        self.assertEqual("Diagram 1", diagram.name)
-        self.assertEqual("Desc 1", diagram.description)
-        self.assertEqual(self.DEFAULT_ID, diagram.created_by.id)
-        self.assertEqual(self.DEFAULT_ID, diagram.modified_by.id)
+    def get_default_entity(self) -> Any:
+        created_at = date_utils.str_iso_to_date("2022-01-01T07:44:42.000")
+
+        return Diagram(id=self.DEFAULT_ID, name="Diagram 1", description="Desc 1", created_by=self.DEFAULT_USER,
+                       modified_by=self.DEFAULT_USER, created_at=created_at, modified_at=created_at)
+
+    def get_updated_default_entity(self) -> Any:
+        default_entity = self.get_default_entity()
+        default_entity.name = "modified name"
+        default_entity.description = "modified description"
+
+        return default_entity
+
+    def get_entity_name(self) -> str:
+        return "Diagram"

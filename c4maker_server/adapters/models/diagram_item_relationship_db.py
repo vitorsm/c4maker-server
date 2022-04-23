@@ -13,11 +13,11 @@ class DiagramItemRelationshipDB(BaseModel):
     description = Column(String, primary_key=True, nullable=False)
     details = Column(String, nullable=True)
 
-    to_diagram_item = relationship("DiagramItem", foreign_keys="DiagramItemRelationshipDB.to_diagram_item_id")
+    to_diagram_item = relationship("DiagramItemDB", foreign_keys="DiagramItemRelationshipDB.to_diagram_item_id")
 
     def __init__(self, diagram_item_relationship: DiagramItemRelationship, diagram_item: DiagramItem):
-        self.from_diagram_item_id = diagram_item.id
-        self.to_diagram_item_id = diagram_item_relationship.diagram_item.id
+        self.from_diagram_item_id = str(diagram_item.id)
+        self.to_diagram_item_id = str(diagram_item_relationship.diagram_item.id)
         self.description = diagram_item_relationship.description
         self.details = diagram_item_relationship.details
 
@@ -28,7 +28,7 @@ class DiagramItemRelationshipDB(BaseModel):
         return hash(self.get_identifier())
 
     def to_entity(self) -> DiagramItemRelationship:
-        return DiagramItemRelationship(diagram_item=self.to_diagram_item.to_entity(), description=self.description,
+        return DiagramItemRelationship(diagram_item=self.to_diagram_item.to_entity(None), description=self.description,
                                        details=self.details)
 
     def get_identifier(self) -> tuple:

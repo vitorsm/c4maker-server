@@ -23,6 +23,10 @@ class MySQLDiagramItemRepository(DiagramItemRepository):
 
     def delete(self, diagram_item_id: UUID):
         diagram_item_db = self.__find_db_obj_by_id(str(diagram_item_id))
+
+        if not diagram_item_db:
+            return
+
         self.mysql_client.delete(diagram_item_db)
 
     def find_by_id(self, diagram_item_id: UUID) -> Optional[DiagramItem]:
