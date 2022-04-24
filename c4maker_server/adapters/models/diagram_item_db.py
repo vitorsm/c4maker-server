@@ -72,11 +72,6 @@ class DiagramItemDB(BaseModel):
 
         return DiagramItem(id=UUID(self.id), name=self.name, item_description=self.item_description,
                            details=self.details, relationships=relationships, parent=parent,
-                           item_type=DiagramItemDB.__instantiate_item_type_by_name(self.item_type), diagram=diagram,
+                           item_type=DiagramItem.instantiate_item_type_by_name(self.item_type), diagram=diagram,
                            created_by=self.created_by_obj.to_entity(), modified_by=self.modified_by_obj.to_entity(),
                            created_at=self.created_at, modified_at=self.modified_at)
-
-    @staticmethod
-    def __instantiate_item_type_by_name(item_type_name: str) -> DiagramItemType:
-        types = list(map(lambda t: t, DiagramItemType))
-        return next((t for t in types if t.name == item_type_name), None)

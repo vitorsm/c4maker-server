@@ -25,12 +25,7 @@ class UserAccessDB(BaseModel):
 
     def to_entity(self) -> UserAccess:
         return UserAccess(diagram=self.diagram.to_entity(),
-                          permission=UserAccessDB.__instantiate_permission_by_name(self.user_permission))
+                          permission=UserAccess.instantiate_permission_by_name(self.user_permission))
 
     def get_identifier(self) -> tuple:
         return self.user_id, self.diagram_id, self.user_permission
-
-    @staticmethod
-    def __instantiate_permission_by_name(permission_name: str) -> UserPermission:
-        user_permissions = list(map(lambda p: p, UserPermission))
-        return next((p for p in user_permissions if p.name == permission_name), None)

@@ -1,5 +1,6 @@
 from typing import Any
 
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError
 
 from c4maker_server.domain.exceptions.duplicate_entity_exception import DuplicateEntityException
@@ -7,7 +8,7 @@ from c4maker_server.utils import sql_utils
 
 
 class MySQLClient:
-    def __init__(self, db):
+    def __init__(self, db: SQLAlchemy):
         self.db = db
 
     def add(self, entity: Any, commit: bool = True):

@@ -14,3 +14,7 @@ class UserAccess:
     diagram: Diagram
     permission: UserPermission
 
+    @staticmethod
+    def instantiate_permission_by_name(permission_name: str) -> UserPermission:
+        user_permissions = list(map(lambda p: p, UserPermission))
+        return next((p for p in user_permissions if p.name == permission_name), None)

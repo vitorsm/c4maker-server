@@ -45,3 +45,8 @@ class DiagramItem:
             self.modified_by = user
         if not self.modified_at:
             self.modified_at = modified_date
+
+    @staticmethod
+    def instantiate_item_type_by_name(item_type_name: str) -> DiagramItemType:
+        types = list(map(lambda t: t, DiagramItemType))
+        return next((t for t in types if t.name == item_type_name), None)
