@@ -17,10 +17,13 @@ class TestDiagramService(unittest.TestCase):
 
     def setUp(self):
         self.repository = Mock()
-        self.service = DiagramService(self.repository)
+        self.authentication_repository = Mock()
+        self.service = DiagramService(self.repository, self.authentication_repository)
 
         self.user1 = User(id=uuid4(), name="", login="", password="", shared_diagrams=[])
         self.user2 = User(id=uuid4(), name="", login="", password="", shared_diagrams=[])
+
+        self.authentication_repository.get_current_user.return_value = self.user1
 
         self.diagram1 = Diagram(id=uuid4(), name="Diagram 1", description=None, created_by=self.user2,
                                 created_at=datetime.now(), modified_by=self.user2, modified_at=datetime.now())
@@ -30,7 +33,7 @@ class TestDiagramService(unittest.TestCase):
         diagram = Diagram(id=None, name="Diagram 1", description=None)
         self.repository.create.return_value = None
 
-        self.service.create_diagram(diagram, self.user1)
+        self.service.create_diagram(diagram)
 
         self.assertEqual(1, self.repository.create.call_count)
         self.assertIsNotNone(diagram.created_by)
@@ -43,7 +46,7 @@ class TestDiagramService(unittest.TestCase):
         self.repository.create.return_value = None
 
         with self.assertRaises(InvalidEntityException):
-            self.service.create_diagram(diagram, self.user1)
+            self.service.create_diagram(diagram)
 
         self.assertEqual(0, self.repository.create.call_count)
 
@@ -54,8 +57,9 @@ class TestDiagramService(unittest.TestCase):
         new_name = "new name"
         new_description = "new description"
         diagram = Diagram(id=self.diagram1.id, name=new_name, description=new_description)
+        self.authentication_repository.get_current_user.return_value = self.user2
 
-        self.service.update_diagram(diagram, self.user2)
+        self.service.update_diagram(diagram)
 
         self.assertEqual(1, self.repository.update.call_count)
         self.assertEqual(new_name, diagram.name)
@@ -69,10 +73,10 @@ class TestDiagramService(unittest.TestCase):
         self.repository.update.return_value = None
         self.repository.find_by_id.return_value = self.diagram1
 
-        user = deepcopy(self.user1)
-        user.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
+        # user = deepcopy(self.user1)
+        self.user1.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
 
-        self.service.update_diagram(self.diagram1, user)
+        self.service.update_diagram(self.diagram1)
 
         self.assertEqual(1, self.repository.update.call_count)
 
@@ -80,11 +84,10 @@ class TestDiagramService(unittest.TestCase):
         self.repository.update.return_value = None
         self.repository.find_by_id.return_value = self.diagram1
 
-        user = deepcopy(self.user1)
-        user.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.VIEW)]
+        self.user1.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.VIEW)]
 
         with self.assertRaises(PermissionException):
-            self.service.update_diagram(self.diagram1, user)
+            self.service.update_diagram(self.diagram1)
 
         self.assertEqual(0, self.repository.update.call_count)
 
@@ -92,11 +95,10 @@ class TestDiagramService(unittest.TestCase):
         self.repository.update.return_value = None
         self.repository.find_by_id.return_value = self.diagram2
 
-        user = deepcopy(self.user1)
-        user.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
+        self.user1.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
 
         with self.assertRaises(PermissionException):
-            self.service.update_diagram(self.diagram2, user)
+            self.service.update_diagram(self.diagram2)
 
         self.assertEqual(0, self.repository.update.call_count)
 
@@ -104,11 +106,10 @@ class TestDiagramService(unittest.TestCase):
         self.repository.update.return_value = None
         self.repository.find_by_id.return_value = None
 
-        user = deepcopy(self.user1)
-        user.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
+        self.user1.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
 
         with self.assertRaises(EntityNotFoundException):
-            self.service.update_diagram(self.diagram2, user)
+            self.service.update_diagram(self.diagram2)
 
         self.assertEqual(0, self.repository.update.call_count)
 
@@ -117,13 +118,12 @@ class TestDiagramService(unittest.TestCase):
         self.repository.find_by_id.return_value = self.diagram2
 
         diagram = deepcopy(self.diagram2)
-        user = deepcopy(self.user1)
-        user.shared_diagrams = [UserAccess(diagram=diagram, permission=UserPermission.EDIT)]
+        self.user1.shared_diagrams = [UserAccess(diagram=diagram, permission=UserPermission.EDIT)]
 
         diagram.name = ""
 
         with self.assertRaises(InvalidEntityException):
-            self.service.update_diagram(diagram, user)
+            self.service.update_diagram(diagram)
 
         self.assertEqual(0, self.repository.update.call_count)
 
@@ -131,33 +131,34 @@ class TestDiagramService(unittest.TestCase):
         diagram_id = self.diagram1.id
         self.repository.delete.return_value = None
         self.repository.find_by_id.return_value = self.diagram1
+        self.authentication_repository.get_current_user.return_value = self.user2
 
-        self.service.delete_diagram(diagram_id, self.user2)
+        self.service.delete_diagram(diagram_id)
 
         self.assertEqual(1, self.repository.delete.call_count)
 
     def test_delete_without_permission(self):
         diagram_id = self.diagram1.id
-        user = deepcopy(self.user1)
-        user.id = uuid4()
-        user.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
+
+        self.user1.id = uuid4()
+        self.user1.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
         self.repository.delete.return_value = None
         self.repository.find_by_id.return_value = self.diagram1
 
         with self.assertRaises(PermissionException):
-            self.service.delete_diagram(diagram_id, user)
+            self.service.delete_diagram(diagram_id)
 
         self.assertEqual(0, self.repository.delete.call_count)
 
     def test_delete_not_found_permission(self):
         diagram_id = self.diagram1.id
-        user = deepcopy(self.user1)
-        user.id = uuid4()
-        user.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
+
+        self.user1.id = uuid4()
+        self.user1.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
         self.repository.delete.return_value = None
         self.repository.find_by_id.return_value = None
 
         with self.assertRaises(EntityNotFoundException):
-            self.service.delete_diagram(diagram_id, user)
+            self.service.delete_diagram(diagram_id)
 
         self.assertEqual(0, self.repository.delete.call_count)

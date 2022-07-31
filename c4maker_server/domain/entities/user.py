@@ -17,6 +17,17 @@ class User:
     def __eq__(self, other):
         return isinstance(other, User) and other.id == self.id
 
+    @property
+    def __dict__(self):
+        if not hasattr(self, "id"):
+            return {}
+
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "login": self.login
+        }
+
     def is_owner(self, diagram: Diagram) -> bool:
         return diagram.created_by == self
 

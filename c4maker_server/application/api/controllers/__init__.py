@@ -1,0 +1,1 @@
+from c4maker_server.application.api.controllers import error_handler

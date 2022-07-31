@@ -17,9 +17,12 @@ class TestDiagramItemService(unittest.TestCase):
     def setUp(self):
         self.repository = Mock()
         self.diagram_service = Mock()
-        self.service = DiagramItemService(self.repository, self.diagram_service)
+        self.authentication_repository = Mock()
+        self.service = DiagramItemService(self.repository, self.authentication_repository, self.diagram_service)
 
         self.user1 = User(id=uuid4(), name="", login="", password="", shared_diagrams=[])
+        self.authentication_repository.get_current_user.return_value = self.user1
+
         self.diagram1 = Diagram(id=uuid4(), name="Diagram 1", description=None, created_by=self.user1,
                                 created_at=datetime.now(), modified_by=self.user1, modified_at=datetime.now())
         self.diagram2 = Diagram(id=uuid4(), name="Diagram 2", description=None, created_by=self.user1,
@@ -38,7 +41,7 @@ class TestDiagramItemService(unittest.TestCase):
         self.diagram_service.find_diagram_by_id.return_value = self.diagram1
         self.diagram_service.check_permission_to_persist.return_value = True
 
-        self.service.create_diagram_item(diagram_item, self.user1)
+        self.service.create_diagram_item(diagram_item)
 
         self.assertEqual(1, self.repository.create.call_count)
 
@@ -52,7 +55,7 @@ class TestDiagramItemService(unittest.TestCase):
         self.diagram_service.check_permission_to_persist.return_value = True
 
         with self.assertRaises(InvalidEntityException) as exception_context:
-            self.service.create_diagram_item(diagram_item, self.user1)
+            self.service.create_diagram_item(diagram_item)
 
         self.assertEqual(0, self.repository.create.call_count)
         self.assertIn("diagram, name, details, item_description", str(exception_context.exception))
@@ -67,7 +70,7 @@ class TestDiagramItemService(unittest.TestCase):
         self.diagram_service.find_diagram_by_id.return_value = self.diagram1
         self.diagram_service.check_permission_to_persist.return_value = True
 
-        self.service.update_diagram_item(diagram_item, self.user1)
+        self.service.update_diagram_item(diagram_item)
 
         self.assertEqual(1, self.repository.update.call_count)
         self.assertIsNotNone(diagram_item.created_by)
@@ -85,7 +88,7 @@ class TestDiagramItemService(unittest.TestCase):
         self.diagram_service.check_permission_to_persist.return_value = True
 
         with self.assertRaises(InvalidEntityException) as exception_context:
-            self.service.update_diagram_item(diagram_item, self.user1)
+            self.service.update_diagram_item(diagram_item)
 
         self.assertEqual(0, self.repository.update.call_count)
         self.assertIn("diagram, name, details, item_description", str(exception_context.exception))
@@ -100,7 +103,7 @@ class TestDiagramItemService(unittest.TestCase):
         self.diagram_service.check_permission_to_persist.return_value = True
 
         with self.assertRaises(InvalidEntityException) as exception_context:
-            self.service.update_diagram_item(diagram_item, self.user1)
+            self.service.update_diagram_item(diagram_item)
 
         self.assertEqual(0, self.repository.update.call_count)
         self.assertIn("diagram", str(exception_context.exception))
@@ -112,7 +115,7 @@ class TestDiagramItemService(unittest.TestCase):
 
         self.repository.delete.return_value = None
 
-        self.service.delete_diagram_item(self.diagram_item1.id, self.user1)
+        self.service.delete_diagram_item(self.diagram_item1.id)
 
         self.assertEqual(1, self.repository.delete.call_count)
 
@@ -126,7 +129,7 @@ class TestDiagramItemService(unittest.TestCase):
         self.repository.delete.return_value = None
 
         with self.assertRaises(PermissionException):
-            self.service.delete_diagram_item(self.diagram_item1.id, self.user1)
+            self.service.delete_diagram_item(self.diagram_item1.id)
 
         self.assertEqual(0, self.repository.delete.call_count)
 
@@ -138,6 +141,6 @@ class TestDiagramItemService(unittest.TestCase):
         self.repository.delete.return_value = None
 
         with self.assertRaises(EntityNotFoundException):
-            self.service.delete_diagram_item(self.diagram_item1.id, self.user1)
+            self.service.delete_diagram_item(self.diagram_item1.id)
 
         self.assertEqual(0, self.repository.delete.call_count)

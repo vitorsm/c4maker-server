@@ -1,4 +1,5 @@
 from typing import Any
+from unittest import TestCase
 from uuid import UUID
 
 from c4maker_server.adapters.mysql.mysql_diagram_item_repository import MySQLDiagramItemRepository
@@ -7,16 +8,24 @@ from c4maker_server.domain.entities.diagram_item import DiagramItemType, Diagram
 from c4maker_server.domain.entities.diagram_item_relationship import DiagramItemRelationship
 from c4maker_server.utils import date_utils
 from tests.integration_tests.adapters.mysql.generic_mysql_test import GenericMySQLTest
+from tests.integration_tests.base_integ_test import BaseIntegTest
 
 
-class TestMySQLDiagramItemRepository(GenericMySQLTest):
+class TestMySQLDiagramItemRepository(GenericMySQLTest, BaseIntegTest):
     repository: MySQLDiagramItemRepository = None
+
+    def setUp(self):
+        self.create_app()
+        super().setUp()
 
     def get_repository(self) -> Any:
         if not self.repository:
             self.repository = MySQLDiagramItemRepository(self.mysql_client)
 
         return self.repository
+
+    def get_test_case(self) -> TestCase:
+        return self
 
     def get_default_entity(self) -> Any:
         diagram = Diagram(id=self.DEFAULT_ID, name=None, description=None)

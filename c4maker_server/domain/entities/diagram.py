@@ -15,6 +15,12 @@ class Diagram:
     created_at: Optional[datetime] = field(default=None)
     modified_at: Optional[datetime] = field(default=None)
 
+    def __dict__(self):
+        return {
+            "id": str(self.id),
+            "name": self.name
+        }
+
     def __eq__(self, other: 'Diagram'):
         return isinstance(other, Diagram) and self.id == other.id
 
