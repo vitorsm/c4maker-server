@@ -39,8 +39,14 @@ class MySQLDiagramRepository(DiagramRepository):
         return diagram_db.to_entity()
 
     def find_all_by_user(self, user: User) -> List[Diagram]:
-        user_accesses_db = self.mysql_client.db.session.query(DiagramDB).filter(UserAccessDB.user_id == str(user.id))
-        return [user_access_db.diagram.to_entity() for user_access_db in user_accesses_db]
+        user_accesses_db = self.mysql_client.db.session.query(UserAccessDB).filter(UserAccessDB.user_id == str(user.id))
+        diagrams_created_by_user = \
+            self.mysql_client.db.session.query(DiagramDB).filter(DiagramDB.created_by == str(user.id))
+
+        diagrams = [user_access_db.diagram.to_entity() for user_access_db in user_accesses_db]
+        diagrams.extend([diagram.to_entity() for diagram in diagrams_created_by_user])
+
+        return diagrams
 
     def __find_db_obj_by_id(self, diagram_id: str) -> DiagramDB:
         return self.mysql_client.db.session.query(DiagramDB).get(diagram_id)

@@ -31,7 +31,7 @@ CREATE TABLE user_access (
 
     PRIMARY KEY (user_id, diagram_id),
     FOREIGN KEY (user_id) REFERENCES user(id),
-    FOREIGN KEY (diagram_id) REFERENCES diagram(id)
+    FOREIGN KEY (diagram_id) REFERENCES diagram(id) ON DELETE CASCADE
 );
 
 CREATE TABLE diagram_item (
@@ -49,7 +49,7 @@ CREATE TABLE diagram_item (
     modified_at TIMESTAMP NOT NULL DEFAULT NOW(),
 
     PRIMARY KEY(id),
-    FOREIGN KEY(diagram_id) REFERENCES diagram(id),
+    FOREIGN KEY(diagram_id) REFERENCES diagram(id) ON DELETE CASCADE,
     FOREIGN KEY(parent_id) REFERENCES diagram_item(id),
     FOREIGN KEY(created_by) REFERENCES user(id),
     FOREIGN KEY(modified_by) REFERENCES user(id)

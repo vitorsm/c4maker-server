@@ -21,6 +21,8 @@ class DiagramDB(BaseModel):
 
     created_by_obj = relationship("UserDB", foreign_keys="DiagramDB.created_by")
     modified_by_obj = relationship("UserDB", foreign_keys="DiagramDB.modified_by")
+    diagram_items = relationship("DiagramItemDB", lazy="select", cascade="delete")
+    user_accesses = relationship("UserAccessDB", lazy="select", cascade="delete")
 
     def __init__(self, diagram: Diagram):
         self.update_properties(diagram)

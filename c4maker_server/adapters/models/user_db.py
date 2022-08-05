@@ -14,7 +14,7 @@ class UserDB(BaseModel):
     name = Column(String, nullable=False)
     login = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
-    user_access = relationship("UserAccessDB", lazy="select", cascade="all, delete-orphan")
+    user_access = relationship("UserAccessDB", lazy="select")
 
     def __init__(self, user: User):
         self.id = str(user.id)

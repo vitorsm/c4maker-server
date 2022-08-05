@@ -73,8 +73,6 @@ class DiagramItemService:
         if persisted_diagram_item:
             diagram_item.created_by = persisted_diagram_item.created_by
             diagram_item.created_at = persisted_diagram_item.created_at
-            diagram_item.modified_by = persisted_diagram_item.modified_by
-            diagram_item.modified_at = persisted_diagram_item.modified_at
         else:
             diagram_item.id = uuid.uuid4()
 

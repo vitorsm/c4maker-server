@@ -12,6 +12,10 @@ class MySQLUserRepository(UserRepository):
     def __init__(self, mysql_client: MySQLClient):
         self.mysql_client = mysql_client
 
+    def create_user(self, user: User):
+        user_db = UserDB(user)
+        self.mysql_client.add(user_db)
+
     def find_by_id(self, user_id: UUID, reduced: bool = True) -> Optional[User]:
         user_db = self.mysql_client.db.session.query(UserDB).get(str(user_id))
 

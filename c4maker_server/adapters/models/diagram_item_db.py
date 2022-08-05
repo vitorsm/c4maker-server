@@ -17,7 +17,7 @@ class DiagramItemDB(BaseModel):
     name = Column(String, nullable=False)
     item_description = Column(String, nullable=True)
     details = Column(String, nullable=True)
-    item_type = Column(String, nullable=False)
+    item_type = Column(String(30), nullable=False, )
     diagram_id = Column(String, ForeignKey("diagram.id"), nullable=False)
     parent_id = Column(String, ForeignKey("diagram_item.id"), nullable=True)
     relationships = relationship("DiagramItemRelationshipDB",
@@ -32,7 +32,7 @@ class DiagramItemDB(BaseModel):
     parent = relationship("DiagramItemDB", foreign_keys="DiagramItemDB.parent_id", lazy="select", remote_side=[id])
     created_by_obj = relationship("UserDB", foreign_keys="DiagramItemDB.created_by")
     modified_by_obj = relationship("UserDB", foreign_keys="DiagramItemDB.modified_by")
-    diagram = relationship("DiagramDB", lazy="select")
+    diagram = relationship("DiagramDB", lazy="select", cascade="all,delete")
 
     def __init__(self, diagram_item: DiagramItem):
         self.update_properties(diagram_item)

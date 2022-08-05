@@ -1,5 +1,7 @@
 
-INSERT INTO user (id, name, login, password) VALUES ('00000000-0000-0000-0000-000000000000', 'User 1', 'user', '12345');
+INSERT INTO user (id, name, login, password) VALUES
+('00000000-0000-0000-0000-000000000000', 'User 1', 'user', '$2b$12$eSoRK4Da8sEX3GSg56FKmujEq2JdeaMIt98nHKfdusf78UzzSaOCS'),
+('00000000-0000-0000-0000-000000000001', 'User 2', 'user2', '$2b$12$eSoRK4Da8sEX3GSg56FKmujEq2JdeaMIt98nHKfdusf78UzzSaOCS');
 INSERT INTO diagram (id, name, description, created_by, modified_by, created_at, modified_at) VALUES
 ('00000000-0000-0000-0000-000000000000', 'Diagram 1', 'Desc 1', '00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000000', '2022-01-01 07:44:42', '2022-01-01 07:44:42');
 INSERT INTO user_access (user_id, diagram_id, user_permission) VALUES ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000000', 'EDIT');
