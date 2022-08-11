@@ -1,5 +1,5 @@
 import enum
-from dataclasses import dataclass, field
+from dataclasses import field, dataclass
 from datetime import datetime
 from typing import List, Optional
 from uuid import UUID

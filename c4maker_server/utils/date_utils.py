@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 ISO_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 
