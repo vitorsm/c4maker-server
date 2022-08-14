@@ -29,23 +29,32 @@ class DiagramItemService:
         self.diagram_item_repository.create(diagram_item)
 
     def update_diagram_item(self, diagram_item: DiagramItem):
-        persisted_diagram_item = self.find_diagram_item_by_id(diagram_item.id)
-        self.__prepare_to_persist(diagram_item, self.authentication_repository.get_current_user(),
+        user = self.authentication_repository.get_current_user()
+
+        persisted_diagram_item = self.find_diagram_item_by_id(diagram_item.id, user)
+        self.__prepare_to_persist(diagram_item, user,
                                   persisted_diagram_item=persisted_diagram_item)
 
         self.diagram_item_repository.update(diagram_item)
 
     def delete_diagram_item(self, diagram_item_id: UUID):
-        diagram_item = self.find_diagram_item_by_id(diagram_item_id)
+        user = self.authentication_repository.get_current_user()
+        diagram_item = self.find_diagram_item_by_id(diagram_item_id, user)
 
-        self.__prepare_to_persist(diagram_item, self.authentication_repository.get_current_user())
+        self.__prepare_to_persist(diagram_item, user)
         self.diagram_item_repository.delete(diagram_item_id)
 
-    def find_diagram_item_by_id(self, diagram_item_id: UUID) -> DiagramItem:
+    def find_diagram_item_by_id(self, diagram_item_id: UUID, user: Optional[User] = None) -> DiagramItem:
+        if not user:
+            user = self.authentication_repository.get_current_user()
+
         diagram_item = self.diagram_item_repository.find_by_id(diagram_item_id)
 
         if not diagram_item:
             raise EntityNotFoundException("DiagramItem", diagram_item_id)
+
+        if not user.allowed_to_view(diagram_item.diagram):
+            raise PermissionException("DiagramItem", diagram_item_id, user)
 
         return diagram_item
 
@@ -61,7 +70,11 @@ class DiagramItemService:
     def __prepare_to_persist(self, diagram_item: DiagramItem, user: User, is_delete: bool = False,
                              persisted_diagram_item: Optional[DiagramItem] = None):
         diagram = self.diagram_service.find_diagram_by_id(diagram_item.diagram.id, user)
+        parent_diagram_item = self.find_diagram_item_by_id(diagram_item.parent.id, user) \
+            if diagram_item.parent else None
+
         diagram_item.diagram = diagram
+        diagram_item.parent = parent_diagram_item
 
         self.__check_permission_to_persist(persisted_diagram_item if persisted_diagram_item else diagram_item, user)
 
@@ -69,6 +82,8 @@ class DiagramItemService:
             return
 
         DiagramItemService.__check_missing_fields(diagram_item, persisted_diagram_item)
+
+        diagram_item.set_track_data(user, datetime.now())
 
         if persisted_diagram_item:
             diagram_item.created_by = persisted_diagram_item.created_by
@@ -92,6 +107,8 @@ class DiagramItemService:
             missing_fields.append("details")
         if not diagram_item.item_description:
             missing_fields.append("item_description")
+        if diagram_item.parent and diagram_item.parent.diagram != diagram_item.diagram:
+            missing_fields.append("parent")
 
         if missing_fields:
             raise InvalidEntityException("DiagramItem", missing_fields)

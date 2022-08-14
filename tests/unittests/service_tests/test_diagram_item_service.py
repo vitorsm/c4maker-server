@@ -6,6 +6,7 @@ from uuid import uuid4
 from c4maker_server.domain.entities.diagram import Diagram
 from c4maker_server.domain.entities.diagram_item import DiagramItem, DiagramItemType
 from c4maker_server.domain.entities.user import User
+from c4maker_server.domain.entities.user_access import UserAccess, UserPermission
 from c4maker_server.domain.exceptions.entity_not_found_exception import EntityNotFoundException
 from c4maker_server.domain.exceptions.invalid_entity_exception import InvalidEntityException
 from c4maker_server.domain.exceptions.permission_exception import PermissionException
@@ -84,8 +85,12 @@ class TestDiagramItemService(unittest.TestCase):
                                                                                         description=None))
 
         self.repository.update.return_value = None
+        self.repository.find_by_id.return_value = diagram_item
         self.diagram_service.find_diagram_by_id.return_value = None
         self.diagram_service.check_permission_to_persist.return_value = True
+
+        self.user1.shared_diagrams.append(UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT))
+        self.authentication_repository.get_current_user.return_value = self.user1
 
         with self.assertRaises(InvalidEntityException) as exception_context:
             self.service.update_diagram_item(diagram_item)
@@ -94,13 +99,21 @@ class TestDiagramItemService(unittest.TestCase):
         self.assertIn("diagram, name, details, item_description", str(exception_context.exception))
 
     def test_update_diagram_item_different_diagram(self):
+        diagram_item_to_return = DiagramItem(id=self.diagram_item1.id, name="name", item_description="description",
+                                             details="details", item_type=DiagramItemType.COMPONENT,
+                                             diagram=Diagram(id=self.diagram1.id, name="", description=None))
+
         diagram_item = DiagramItem(id=self.diagram_item1.id, name="name", item_description="description",
                                    details="details", item_type=DiagramItemType.COMPONENT,
                                    diagram=Diagram(id=self.diagram2.id, name="", description=None))
 
         self.repository.update.return_value = None
+        self.repository.find_by_id.return_value = diagram_item_to_return
         self.diagram_service.find_diagram_by_id.return_value = self.diagram2
         self.diagram_service.check_permission_to_persist.return_value = True
+        self.user1.shared_diagrams.append(UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT))
+        self.user1.shared_diagrams.append(UserAccess(diagram=self.diagram2, permission=UserPermission.EDIT))
+        self.authentication_repository.get_current_user.return_value = self.user1
 
         with self.assertRaises(InvalidEntityException) as exception_context:
             self.service.update_diagram_item(diagram_item)

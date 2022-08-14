@@ -57,7 +57,9 @@ class DiagramItemDB(BaseModel):
         self.created_at = diagram_item.created_at
         self.modified_at = diagram_item.modified_at
 
-        if diagram_item.relationships:
+        if not diagram_item.relationships:
+            self.relationships = list()
+        else:
             self.relationships = [DiagramItemRelationshipDB(r, diagram_item) for r in diagram_item.relationships]
 
     def to_entity(self, diagram: Optional[Diagram]) -> DiagramItem:

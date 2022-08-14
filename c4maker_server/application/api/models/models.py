@@ -48,6 +48,7 @@ def get_user_model(user_access_model: Model) -> dict:
 
 def get_diagram_item(reduced_user_model: Model, diagram_model: Model) -> dict:
     generic = __get_generic_entity_model(reduced_user_model)
+
     generic.update({
         "id": fields.String(required=False),
         "name": fields.String(required=True),
@@ -55,7 +56,7 @@ def get_diagram_item(reduced_user_model: Model, diagram_model: Model) -> dict:
         "details": fields.String(required=False),
         "item_type": fields.String(required=True),
         "diagram": fields.Raw(model=diagram_model, required=True),
-        "relationships": fields.String(required=True),
+        "relationships": fields.String(required=False),
         "parent": fields.Raw()
     })
 

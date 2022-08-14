@@ -1,6 +1,7 @@
 from typing import Optional
 
 from c4maker_server.application.api.mapper.diagram_mapper import DiagramMapper
+from c4maker_server.application.api.mapper.generic_mapper import GenericMapper
 from c4maker_server.domain.entities.diagram_item import DiagramItem
 from c4maker_server.utils import utils
 
@@ -34,5 +35,7 @@ class ReducedDiagramItemMapper:
             "parent": ReducedDiagramItemMapper.to_dto(diagram_item.parent),
             "relationships": None
         }
+
+        GenericMapper.to_dto(diagram_item, dto)
 
         return dto

@@ -41,10 +41,10 @@ class DiagramItem:
         self.modified_by = user
         self.modified_at = modified_date
 
-        if not self.modified_by:
-            self.modified_by = user
-        if not self.modified_at:
-            self.modified_at = modified_date
+        if not self.created_by:
+            self.created_by = user
+        if not self.created_at:
+            self.created_at = modified_date
 
     @staticmethod
     def instantiate_item_type_by_name(item_type_name: str) -> DiagramItemType:

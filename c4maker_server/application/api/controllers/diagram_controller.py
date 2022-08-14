@@ -2,7 +2,6 @@ from flask import request
 from flask_jwt import jwt_required
 from flask_restx import Resource
 
-# from c4maker_server.application.api import namespace, diagram_model, dependency_injector
 from c4maker_server.application.api.controllers import namespace, diagram_model, dependency_injector
 from c4maker_server.application.api.mapper.diagram_mapper import DiagramMapper
 from c4maker_server.services.diagram_service import DiagramService
@@ -32,7 +31,7 @@ class DiagramController(Resource):
 
 
 @namespace.route("/diagram/<string:diagram_item_id>")
-class DiagramItemController(Resource):
+class DiagramEntityController(Resource):
 
     @jwt_required()
     @namespace.doc(security="Bearer")
@@ -58,3 +57,4 @@ class DiagramItemController(Resource):
     @namespace.doc(security="Bearer")
     def delete(self, diagram_item_id: str):
         dependency_injector.get(DiagramService).delete_diagram(utils.str_to_uuid(diagram_item_id))
+        return None, 204

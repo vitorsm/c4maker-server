@@ -4,27 +4,30 @@ from tests.integration_tests.api.controllers.generic_controller_test import Gene
 from tests.integration_tests.base_integ_test import BaseIntegTest
 
 
-class TestDiagramController(BaseIntegTest, GenericControllerTest):
+class TestDiagramItemController(BaseIntegTest, GenericControllerTest):
     def _has_find_all(self) -> bool:
-        return True
+        return False
 
     def _get_endpoint(self) -> str:
-        return "/diagram"
+        return "/diagram-item"
 
     def _get_endpoint_by_id(self, entity_id: str):
         return f"{self._get_endpoint()}/{entity_id}"
 
     def _get_invalid_insert_payload(self) -> dict:
-        return {
-                "name": "",
-                "description": "Test"
-            }
+        item = self._get_insert_payload()
+        item["item_type"] = None
+        return item
 
     def _get_insert_payload(self) -> dict:
         return {
-                "name": "Test name",
-                "description": "Test description"
-            }
+            "name": "Test name",
+            "item_description": "Test description",
+            "details": "Test details",
+            "item_type": "SOFTWARE_SYSTEM",
+            "diagram": {"id": "00000000-0000-0000-0000-000000000000"},
+            "parent": {"id": "00000000-0000-0000-0000-000000000001"}
+        }
 
     def get_client(self) -> Any:
         return self.client

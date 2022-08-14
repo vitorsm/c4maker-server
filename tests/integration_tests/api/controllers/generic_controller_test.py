@@ -9,6 +9,10 @@ from werkzeug.test import TestResponse
 class GenericControllerTest(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
+    def _has_find_all(self) -> bool:
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def _get_endpoint(self) -> str:
         raise NotImplementedError
 
@@ -103,6 +107,9 @@ class GenericControllerTest(metaclass=abc.ABCMeta):
         self.assertEqual(401, response.status_code)
 
     def test_find_all_items(self):
+        if not self._has_find_all():
+            return
+
         response = self._get_items()
 
         response_dto = json.loads(response.data.decode())
@@ -112,6 +119,9 @@ class GenericControllerTest(metaclass=abc.ABCMeta):
         self.assertEqual(2, len(response_dto))
 
     def test_not_authenticate_find_all_items(self):
+        if not self._has_find_all():
+            return
+
         response = self._get_items(with_auth=False)
         self.assertEqual(401, response.status_code)
 
@@ -160,14 +170,14 @@ class GenericControllerTest(metaclass=abc.ABCMeta):
         self.assertEqual(400, response.status_code)
 
     def test_not_authenticated_update_item(self):
-        item_to_update = self._get_invalid_insert_payload()
+        item_to_update = self._get_insert_payload()
         item_to_update["id"] = self.get_default_id()
 
         response = self._put_item(item_to_update, with_auth=False)
         self.assertEqual(401, response.status_code)
 
     def test_update_item_without_permission(self):
-        item_to_update = self._get_invalid_insert_payload()
+        item_to_update = self._get_insert_payload()
         item_to_update["id"] = self.get_default_id()
 
         response = self._put_item(item_to_update, with_token_no_permission=True)
@@ -175,7 +185,7 @@ class GenericControllerTest(metaclass=abc.ABCMeta):
 
     def test_delete_item(self):
         response = self._delete_item(self.get_default_id())
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(204, response.status_code)
 
         response = self._get_item_by_id(self.get_default_id())
         self.assertEqual(404, response.status_code)
@@ -193,8 +203,15 @@ class GenericControllerTest(metaclass=abc.ABCMeta):
         self.assertEqual(403, response.status_code)
 
     def __assert_dicts(self, item1: dict, item2: dict):
-        for key, value in item1.items():
-            self.assertEqual(value, item2.get(key))
+        if isinstance(item1, list):
+            self.assertEqual(len(item1), len(item2))
+            for i1, i2 in zip(item1, item2):
+                self.__assert_dicts(i1, i2)
+        elif isinstance(item1, dict):
+            for key, value1 in item1.items():
+                self.__assert_dicts(value1, item2.get(key))
+        else:
+            self.assertEqual(item1, item2)
 
     def __assert_each_item(self, item_dto: Union[dict, list]):
         if isinstance(item_dto, list):
@@ -203,6 +220,9 @@ class GenericControllerTest(metaclass=abc.ABCMeta):
         else:
             self.assertIsNotNone(item_dto["id"])
             self.assertIsNotNone(item_dto["name"])
-            self.assertIsNotNone(item_dto["created_by"])
-            self.assertIsNotNone(item_dto["created_at"])
-            self.assertIsNotNone(item_dto["modified_at"])
+            if "created_by" in item_dto:
+                self.assertIsNotNone(item_dto["created_by"])
+            if "created_at" in item_dto:
+                self.assertIsNotNone(item_dto["created_at"])
+            if "modified_at" in item_dto:
+                self.assertIsNotNone(item_dto["modified_at"])
