@@ -3,15 +3,18 @@ import uuid
 from c4maker_server.domain.entities.user import User
 from c4maker_server.domain.exceptions.invalid_credentials_exception import InvalidCredentialsException
 from c4maker_server.domain.exceptions.invalid_entity_exception import InvalidEntityException
+from c4maker_server.services.ports.authentication_repository import AuthenticationRepository
 from c4maker_server.services.ports.encryption_service import EncryptionService
 from c4maker_server.services.ports.user_repository import UserRepository
 
 
 class UserService:
 
-    def __init__(self, user_repository: UserRepository, encryption_service: EncryptionService):
+    def __init__(self, user_repository: UserRepository, encryption_service: EncryptionService,
+                 authentication_repository: AuthenticationRepository):
         self.user_repository = user_repository
         self.encryption_service = encryption_service
+        self.authentication_repository = authentication_repository
 
     def create_user(self, user: User):
         user.id = uuid.uuid4()
@@ -19,6 +22,9 @@ class UserService:
         user.password = self.encryption_service.encrypt_password(user.password)
 
         self.user_repository.create_user(user)
+
+    def find_current_user(self) -> User:
+        return self.authentication_repository.get_current_user()
 
     @staticmethod
     def __check_required_fields(user: User):

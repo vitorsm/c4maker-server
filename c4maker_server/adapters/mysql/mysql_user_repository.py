@@ -30,4 +30,7 @@ class MySQLUserRepository(UserRepository):
         if not users_db:
             return None
 
-        return users_db[0].to_entity()
+        try:
+            return users_db[0].to_entity()
+        except IndexError:
+            return None

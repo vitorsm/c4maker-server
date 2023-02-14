@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from flask import Flask
+from flask_cors import CORS
 
 from c4maker_server import configs
 from c4maker_server.application.api.security import authentication_utils
@@ -8,6 +9,8 @@ from c4maker_server.application.api.models.models import get_reduced_user_model,
     get_user_access_model, get_user_model, get_diagram_item
 
 app = Flask(__name__)
+CORS(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = configs.DB_CONNECTION_STR
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = configs.ENCRYPT_SECRET_KEY

@@ -31,7 +31,7 @@ class DependenciesInjector(Module):
 
         diagram_service = DiagramService(diagram_repository, authentication_repository)
         diagram_item_service = DiagramItemService(diagram_item_repository, authentication_repository, diagram_service)
-        user_service = UserService(user_repository, BCryptEncryptionService())
+        user_service = UserService(user_repository, BCryptEncryptionService(), authentication_repository)
 
         binder.bind(MySQLClient, to=mysql_client, scope=singleton)
         binder.bind(DiagramRepository, to=diagram_repository, scope=singleton)

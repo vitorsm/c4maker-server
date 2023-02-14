@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
 
 from c4maker_server.domain.entities.diagram_item import DiagramItem
@@ -58,7 +58,7 @@ class DiagramItemService:
 
         return diagram_item
 
-    def find_diagram_items_by_diagram(self, diagram_id: UUID):
+    def find_diagram_items_by_diagram(self, diagram_id: UUID) -> List[DiagramItem]:
         user = self.authentication_repository.get_current_user()
         diagram = self.diagram_service.find_diagram_by_id(diagram_id, user)
 
