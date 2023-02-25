@@ -45,6 +45,9 @@ class WorkspaceDB(BaseModel):
         self.modified_at = workspace.modified_at
 
     def to_entity(self) -> Workspace:
+
+        diagrams = [d.to_entity() for d in self.diagrams]
+
         return Workspace(id=UUID(self.id), name=self.name, description=self.description,
                          created_by=self.created_by_obj.to_entity(), modified_by=self.modified_by_obj.to_entity(),
-                         created_at=self.created_at, modified_at=self.modified_at)
+                         created_at=self.created_at, modified_at=self.modified_at, diagrams=diagrams)
