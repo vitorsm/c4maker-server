@@ -1,7 +1,7 @@
 import enum
 from dataclasses import dataclass
 
-from c4maker_server.domain.entities.diagram import Diagram
+from c4maker_server.domain.entities.workspace import Workspace
 
 
 class UserPermission(enum.Enum):
@@ -11,7 +11,7 @@ class UserPermission(enum.Enum):
 
 @dataclass
 class UserAccess:
-    diagram: Diagram
+    workspace: Workspace
     permission: UserPermission
 
     @staticmethod

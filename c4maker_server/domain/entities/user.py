@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from typing import List, Optional
 from uuid import UUID
 
-from c4maker_server.domain.entities.diagram import Diagram
 from c4maker_server.domain.entities.user_access import UserAccess, UserPermission
+from c4maker_server.domain.entities.workspace import Workspace
 
 
 @dataclass
@@ -12,7 +12,7 @@ class User:
     name: str
     login: str
     password: str
-    shared_diagrams: List[UserAccess]
+    user_access: List[UserAccess]
 
     def __eq__(self, other):
         return isinstance(other, User) and other.id == self.id
@@ -28,25 +28,25 @@ class User:
             "login": self.login
         }
 
-    def is_owner(self, diagram: Diagram) -> bool:
-        return diagram.created_by == self
+    def is_owner(self, workspace: Workspace) -> bool:
+        return workspace.created_by == self
 
-    def allowed_to_edit(self, diagram: Diagram) -> bool:
-        if self.is_owner(diagram):
+    def allowed_to_edit(self, workspace: Workspace) -> bool:
+        if self.is_owner(workspace):
             return True
 
-        user_access = self.__get_user_access_by_diagram(diagram)
+        user_access = self.__get_user_access_by_diagram(workspace)
 
         if not user_access:
             return False
 
         return user_access.permission == UserPermission.EDIT
 
-    def allowed_to_view(self, diagram: Diagram) -> bool:
-        if self.is_owner(diagram):
+    def allowed_to_view(self, workspace: Workspace) -> bool:
+        if self.is_owner(workspace):
             return True
 
-        return bool(self.__get_user_access_by_diagram(diagram))
+        return bool(self.__get_user_access_by_diagram(workspace))
 
-    def __get_user_access_by_diagram(self, diagram: Diagram) -> Optional[UserAccess]:
-        return next((user_access for user_access in self.shared_diagrams if user_access.diagram == diagram), None)
+    def __get_user_access_by_diagram(self, workspace: Workspace) -> Optional[UserAccess]:
+        return next((user_access for user_access in self.user_access if user_access.workspace == workspace), None)

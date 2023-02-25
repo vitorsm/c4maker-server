@@ -1,6 +1,6 @@
 from typing import Optional
 
-from c4maker_server.application.api.mapper.diagram_mapper import DiagramMapper
+from c4maker_server.application.api.mapper.reduced_workspace_mapper import ReducedWorkspaceMapper
 from c4maker_server.domain.entities.user_access import UserAccess
 
 
@@ -11,7 +11,7 @@ class UserAccessMapper:
         if not user_access_dto:
             return None
 
-        return UserAccess(diagram=DiagramMapper.to_entity(user_access_dto.get("diagram")),
+        return UserAccess(workspace=ReducedWorkspaceMapper.to_entity(user_access_dto.get("workspace")),
                           permission=UserAccess.instantiate_permission_by_name(user_access_dto.get("permission")))
 
     @staticmethod
@@ -21,5 +21,5 @@ class UserAccessMapper:
 
         return {
             "permission": user_access.permission.name,
-            "diagram": DiagramMapper.to_dto(user_access.diagram)
+            "workspace": ReducedWorkspaceMapper.to_dto(user_access.workspace)
         }

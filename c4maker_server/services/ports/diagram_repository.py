@@ -20,5 +20,5 @@ class DiagramRepository(metaclass=abc.ABCMeta):
     def find_by_id(self, diagram_id: UUID) -> Optional[Diagram]:
         raise NotImplementedError
 
-    def find_all_by_user(self, user: User) -> List[Diagram]:
+    def find_by_workspace_id(self, workspace_id: UUID) -> List[Diagram]:
         raise NotImplementedError

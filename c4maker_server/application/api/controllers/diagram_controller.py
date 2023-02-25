@@ -24,13 +24,6 @@ class DiagramController(Resource):
 
         return DiagramMapper.to_dto(diagram), 201
 
-    @jwt_required()
-    @namespace.doc(security="Bearer")
-    @namespace.marshal_with(diagram_model)
-    def get(self):
-        diagrams = dependency_injector.get(DiagramService).find_diagrams_by_user()
-        return [DiagramMapper.to_dto(diagram) for diagram in diagrams]
-
 
 @namespace.route("/diagram/<string:diagram_id>")
 class DiagramEntityController(Resource):

@@ -24,6 +24,6 @@ class UserMapper:
 
         user_dto = ReducedUserMapper.to_dto(user)
 
-        user_dto["user_access"] = [UserAccessMapper.to_dto(d) for d in user.shared_diagrams]
+        user_dto["user_access"] = [UserAccessMapper.to_dto(d) for d in user.user_access]
 
         return user_dto
