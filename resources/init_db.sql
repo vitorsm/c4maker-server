@@ -41,7 +41,9 @@ CREATE TABLE workspace_item (
     PRIMARY KEY(id),
     FOREIGN KEY(workspace_id) REFERENCES workspace(id),
     FOREIGN KEY(created_by) REFERENCES user(id),
-    FOREIGN KEY(modified_by) REFERENCES user(id)
+    FOREIGN KEY(modified_by) REFERENCES user(id),
+
+    UNIQUE KEY (workspace_item_key, workspace_id)
 );
 
 CREATE TABLE diagram (
