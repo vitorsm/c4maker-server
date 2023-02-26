@@ -21,8 +21,8 @@ class UserDB(BaseModel):
         self.name = user.name
         self.login = user.login
         self.password = user.password
-        if user.shared_diagrams:
-            self.user_access = [UserAccessDB(u) for u in user.shared_diagrams]
+        if user.user_access:
+            self.user_access = [UserAccessDB(u) for u in user.user_access]
 
     def __eq__(self, other):
         return other and self.id == other.id
@@ -31,9 +31,9 @@ class UserDB(BaseModel):
         return hash(self.id)
 
     def to_entity(self, reduced: bool = True) -> User:
-        shared_diagrams = list()
+        user_access = list()
         if not reduced:
-            shared_diagrams = [u.to_entity() for u in self.user_access]
+            user_access = [u.to_entity() for u in self.user_access]
 
         return User(id=UUID(self.id), name=self.name, login=self.login, password=self.password,
-                    shared_diagrams=shared_diagrams)
+                    user_access=user_access)

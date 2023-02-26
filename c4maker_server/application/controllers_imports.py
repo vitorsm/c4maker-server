@@ -1,4 +1,5 @@
 # importing controllers before execute app.run
+from c4maker_server.application.api.controllers.workspace_controller import WorkspaceController
 from c4maker_server.application.api.controllers.diagram_controller import DiagramController
 from c4maker_server.application.api.controllers.diagram_item_controller import DiagramItemController
 from c4maker_server.application.api.controllers.user_controller import UserController

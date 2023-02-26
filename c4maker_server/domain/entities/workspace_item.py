@@ -7,35 +7,33 @@ from uuid import UUID
 from c4maker_server.domain.entities.workspace import Workspace
 
 
-class DiagramType(enum.Enum):
-    C4 = 1
-    SEQUENCE = 2
-    TEXT = 3
+class WorkspaceItemType(enum.Enum):
+    ENTITY = 1
+    PERSONA = 2
+    DATABASE = 3
+    CONTAINER = 4
+    COMPONENT = 5
 
 
 @dataclass
-class Diagram:
+class WorkspaceItem:
     id: Optional[UUID]
-    name: str
-    description: Optional[str]
     workspace: Workspace
-    diagram_type: DiagramType
+    workspace_item_type: WorkspaceItemType
+    key: str
+    name: str
+    description: str
+    details: str
 
     created_by: Optional = field(default=None)
     modified_by: Optional = field(default=None)
     created_at: Optional[datetime] = field(default=None)
     modified_at: Optional[datetime] = field(default=None)
 
-    def __eq__(self, other: 'Diagram'):
-        return isinstance(other, Diagram) and self.id == other.id
-
-    def __hash__(self):
-        return hash(self.id)
-
     @staticmethod
-    def instantiate_diagram_type_by_name(diagram_type_name: str) -> DiagramType:
-        types = list(map(lambda t: t, DiagramType))
-        return next((t for t in types if t.name == diagram_type_name), None)
+    def instantiate_item_type_by_name(item_type_name: str) -> WorkspaceItemType:
+        types = list(map(lambda t: t, WorkspaceItemType))
+        return next((t for t in types if t.name == item_type_name), None)
 
     def set_track_data(self, user, modified_date: datetime):
         self.modified_by = user

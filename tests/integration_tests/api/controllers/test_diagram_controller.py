@@ -2,11 +2,12 @@ from typing import Any
 
 from tests.integration_tests.api.controllers.generic_controller_test import GenericControllerTest
 from tests.integration_tests.base_integ_test import BaseIntegTest
+from tests.integration_tests.default_values import DefaultValues
 
 
 class TestDiagramController(BaseIntegTest, GenericControllerTest):
     def _has_find_all(self) -> bool:
-        return True
+        return False
 
     def _get_endpoint(self) -> str:
         return "/diagram"
@@ -16,24 +17,28 @@ class TestDiagramController(BaseIntegTest, GenericControllerTest):
 
     def _get_invalid_insert_payload(self) -> dict:
         return {
-                "name": "",
+                "name": "name",
                 "description": "Test"
             }
 
     def _get_insert_payload(self) -> dict:
         return {
                 "name": "Test name",
-                "description": "Test description"
+                "description": "Test description",
+                "workspace": {
+                    "id": self.get_default_id()
+                },
+                "diagram_type": "C4"
             }
 
     def get_client(self) -> Any:
         return self.client
 
     def get_default_id(self) -> str:
-        return self.default_id
+        return str(DefaultValues.DEFAULT_ID)
 
     def get_not_persisted_id(self) -> str:
-        return self.not_persisted_id
+        return str(DefaultValues.NOT_PERSISTED_ID)
 
     def setUp(self):
         self.create_app()

@@ -2,6 +2,7 @@ from typing import Optional
 
 from c4maker_server.application.api.mapper.diagram_mapper import DiagramMapper
 from c4maker_server.application.api.mapper.generic_mapper import GenericMapper
+from c4maker_server.application.api.mapper.workspace_item_mapper import WorkspaceItemMapper
 from c4maker_server.domain.entities.diagram_item import DiagramItem
 from c4maker_server.utils import utils
 
@@ -13,9 +14,8 @@ class ReducedDiagramItemMapper:
         if not dto:
             return None
 
-        return DiagramItem(id=utils.str_to_uuid(dto.get("id")), name=dto.get("name"),
-                           item_description=dto.get("item_description"), details=dto.get("details"),
-                           item_type=DiagramItem.instantiate_item_type_by_name(dto.get("item_type")),
+        return DiagramItem(id=utils.str_to_uuid(dto.get("id")),
+                           workspace_item=WorkspaceItemMapper.to_entity(dto.get("workspace_item")),
                            diagram=DiagramMapper.to_entity(dto.get("diagram")),
                            parent=ReducedDiagramItemMapper.to_entity(dto.get("parent")),
                            relationships=list())
@@ -27,10 +27,7 @@ class ReducedDiagramItemMapper:
 
         dto = {
             "id": str(diagram_item.id),
-            "name": diagram_item.name,
-            "item_description": diagram_item.item_description,
-            "details": diagram_item.details,
-            "item_type": diagram_item.item_type.name,
+            "workspace_item": WorkspaceItemMapper.to_dto(diagram_item.workspace_item),
             "diagram": DiagramMapper.to_dto(diagram_item.diagram),
             "parent": ReducedDiagramItemMapper.to_dto(diagram_item.parent),
             "relationships": None

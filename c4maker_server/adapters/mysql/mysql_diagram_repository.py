@@ -1,10 +1,9 @@
 from typing import List, Optional
 from uuid import UUID
 
-from c4maker_server.adapters.models import DiagramDB, UserAccessDB
+from c4maker_server.adapters.models import DiagramDB
 from c4maker_server.adapters.mysql.mysql_client import MySQLClient
 from c4maker_server.domain.entities.diagram import Diagram
-from c4maker_server.domain.entities.user import User
 from c4maker_server.services.ports.diagram_repository import DiagramRepository
 
 
@@ -38,15 +37,9 @@ class MySQLDiagramRepository(DiagramRepository):
 
         return diagram_db.to_entity()
 
-    def find_all_by_user(self, user: User) -> List[Diagram]:
-        user_accesses_db = self.mysql_client.db.session.query(UserAccessDB).filter(UserAccessDB.user_id == str(user.id))
-        diagrams_created_by_user = \
-            self.mysql_client.db.session.query(DiagramDB).filter(DiagramDB.created_by == str(user.id))
-
-        diagrams = [user_access_db.diagram.to_entity() for user_access_db in user_accesses_db]
-        diagrams.extend([diagram.to_entity() for diagram in diagrams_created_by_user])
-
-        return diagrams
+    def find_by_workspace_id(self, workspace_id: UUID) -> List[Diagram]:
+        diagrams_db = self.mysql_client.db.session.query(DiagramDB).filter(DiagramDB.workspace_id == str(workspace_id))
+        return [diagram_db.to_entity() for diagram_db in diagrams_db]
 
     def __find_db_obj_by_id(self, diagram_id: str) -> DiagramDB:
         return self.mysql_client.db.session.query(DiagramDB).get(diagram_id)

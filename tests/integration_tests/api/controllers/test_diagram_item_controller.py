@@ -2,6 +2,7 @@ from typing import Any
 
 from tests.integration_tests.api.controllers.generic_controller_test import GenericControllerTest
 from tests.integration_tests.base_integ_test import BaseIntegTest
+from tests.integration_tests.default_values import DefaultValues
 
 
 class TestDiagramItemController(BaseIntegTest, GenericControllerTest):
@@ -16,15 +17,20 @@ class TestDiagramItemController(BaseIntegTest, GenericControllerTest):
 
     def _get_invalid_insert_payload(self) -> dict:
         item = self._get_insert_payload()
-        item["item_type"] = None
+        item["workspace_item"] = None
         return item
 
     def _get_insert_payload(self) -> dict:
         return {
-            "name": "Test name",
-            "item_description": "Test description",
-            "details": "Test details",
-            "item_type": "SOFTWARE_SYSTEM",
+            "workspace_item": {
+                "id": self.get_default_id(),
+                "name": "item 1",
+                "key": "item1",
+                "item_type": "DATABASE",
+                "workspace": {
+                    "id": self.get_default_id()
+                }
+            },
             "diagram": {"id": "00000000-0000-0000-0000-000000000000"},
             "parent": {"id": "00000000-0000-0000-0000-000000000001"}
         }
@@ -33,10 +39,10 @@ class TestDiagramItemController(BaseIntegTest, GenericControllerTest):
         return self.client
 
     def get_default_id(self) -> str:
-        return self.default_id
+        return str(DefaultValues.DEFAULT_ID)
 
     def get_not_persisted_id(self) -> str:
-        return self.not_persisted_id
+        return str(DefaultValues.NOT_PERSISTED_ID)
 
     def setUp(self):
         self.create_app()

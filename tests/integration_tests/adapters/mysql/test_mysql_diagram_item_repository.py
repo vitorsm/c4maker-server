@@ -3,12 +3,14 @@ from unittest import TestCase
 from uuid import UUID
 
 from c4maker_server.adapters.mysql.mysql_diagram_item_repository import MySQLDiagramItemRepository
-from c4maker_server.domain.entities.diagram import Diagram
-from c4maker_server.domain.entities.diagram_item import DiagramItemType, DiagramItem
+from c4maker_server.domain.entities.diagram_item import DiagramItem
 from c4maker_server.domain.entities.diagram_item_relationship import DiagramItemRelationship
+from c4maker_server.domain.entities.workspace import Workspace
 from c4maker_server.utils import date_utils
 from tests.integration_tests.adapters.mysql.generic_mysql_test import GenericMySQLTest
 from tests.integration_tests.base_integ_test import BaseIntegTest
+from tests.integration_tests.default_values import DefaultValues
+from tests.utils.obj_mother import ObjMother
 
 
 class TestMySQLDiagramItemRepository(GenericMySQLTest, BaseIntegTest):
@@ -28,27 +30,24 @@ class TestMySQLDiagramItemRepository(GenericMySQLTest, BaseIntegTest):
         return self
 
     def get_default_entity(self) -> Any:
-        diagram = Diagram(id=self.DEFAULT_ID, name=None, description=None)
-        diagram_item2 = DiagramItem(id=UUID("00000000-0000-0000-0000-000000000002"), name=None, details=None,
-                                    item_description=None, item_type=None, diagram=diagram)
-        relationship1 = DiagramItemRelationship(diagram_item=diagram_item2, description="uses", details="details")
-
-        created_at = date_utils.str_iso_to_date("2022-01-01T07:44:42.000")
-
-        return DiagramItem(id=self.DEFAULT_ID, name="Item 1", item_description="Desc 1", details="Details 1",
-                           item_type=DiagramItemType.PERSON, diagram=diagram, relationships=[relationship1],
-                           parent=None, created_by=self.DEFAULT_USER, modified_by=self.DEFAULT_USER,
-                           created_at=created_at, modified_at=created_at)
+        return DefaultValues.get_default_diagram_item()
 
     def get_updated_default_entity(self) -> Any:
         default_entity = self.get_default_entity()
-
-        default_entity.name = "modified name"
-        default_entity.item_description = "modified description"
-        default_entity.details = "modified details"
-        default_entity.item_type = DiagramItemType.COMPONENT
+        default_entity.workspace_item = DefaultValues.get_secondary_workspace_item()
 
         return default_entity
 
     def get_entity_name(self) -> str:
         return "DiagramItem"
+
+    def test_find_all_by_diagram(self):
+        # given
+        diagram = DefaultValues.get_default_diagram()
+
+        # when
+        diagram_items = self.get_repository().find_all_by_diagram(diagram)
+
+        # then
+        self.assertEqual(3, len(diagram_items))
+        self.compare_obj_properties(DefaultValues.get_default_diagram_item(), diagram_items[0])

@@ -21,7 +21,7 @@ class UserService:
         UserService.__check_required_fields(user)
         user.password = self.encryption_service.encrypt_password(user.password)
 
-        self.user_repository.create_user(user)
+        self.user_repository.create(user)
 
     def find_current_user(self) -> User:
         return self.authentication_repository.get_current_user()

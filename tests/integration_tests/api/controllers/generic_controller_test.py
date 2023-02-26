@@ -219,7 +219,6 @@ class GenericControllerTest(metaclass=abc.ABCMeta):
                 self.__assert_each_item(item)
         else:
             self.assertIsNotNone(item_dto["id"])
-            self.assertIsNotNone(item_dto["name"])
             if "created_by" in item_dto:
                 self.assertIsNotNone(item_dto["created_by"])
             if "created_at" in item_dto:

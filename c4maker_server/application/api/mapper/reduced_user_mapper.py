@@ -13,7 +13,7 @@ class ReducedUserMapper:
             return None
 
         user = User(id=utils.str_to_uuid(user_dto.get("id")), name=user_dto.get("name"), login=user_dto.get("login"),
-                    password=user_dto.get("password"), shared_diagrams=list())
+                    password=user_dto.get("password"), user_access=list())
 
         return user
 
