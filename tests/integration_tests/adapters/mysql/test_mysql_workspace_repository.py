@@ -1,30 +1,26 @@
 from typing import Any
 from unittest import TestCase
 
-from c4maker_server.adapters.mysql.mysql_diagram_repository import MySQLDiagramRepository
+from c4maker_server.adapters.mysql.mysql_workspace_repository import MySQLWorkspaceRepository
 from tests.integration_tests.adapters.mysql.generic_mysql_test import GenericMySQLTest
 from tests.integration_tests.base_integ_test import BaseIntegTest
 from tests.integration_tests.default_values import DefaultValues
 
 
-class TestMySQLDiagramRepository(GenericMySQLTest, BaseIntegTest):
-    repository: MySQLDiagramRepository = None
-
-    def setUp(self):
-        self.create_app()
-        super().setUp()
-
-    def get_repository(self) -> Any:
-        if not self.repository:
-            self.repository = MySQLDiagramRepository(self.mysql_client)
-
-        return self.repository
+class TestMySQLWorkspaceRepository(GenericMySQLTest, BaseIntegTest):
+    repository: MySQLWorkspaceRepository = None
 
     def get_test_case(self) -> TestCase:
         return self
 
+    def get_repository(self) -> Any:
+        if not self.repository:
+            self.repository = MySQLWorkspaceRepository(self.mysql_client)
+
+        return self.repository
+
     def get_default_entity(self) -> Any:
-        return DefaultValues.get_default_diagram()
+        return DefaultValues.get_default_workspace()
 
     def get_updated_default_entity(self) -> Any:
         default_entity = self.get_default_entity()
@@ -34,4 +30,4 @@ class TestMySQLDiagramRepository(GenericMySQLTest, BaseIntegTest):
         return default_entity
 
     def get_entity_name(self) -> str:
-        return "Diagram"
+        return "Workspace"

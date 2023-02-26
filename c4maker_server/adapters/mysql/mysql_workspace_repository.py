@@ -21,7 +21,8 @@ class MySQLWorkspaceRepository(WorkspaceRepository):
     def update(self, workspace: Workspace):
         workspace_db = self.__find_db_obj_by_id(str(workspace.id))
         workspace_db.update_properties(workspace)
-        self.mysql_client.update(workspace)
+        
+        self.mysql_client.update(workspace_db)
 
     def delete(self, workspace_id: UUID):
         workspace_db = self.__find_db_obj_by_id(str(workspace_id))
