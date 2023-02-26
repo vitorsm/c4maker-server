@@ -17,8 +17,8 @@ class WorkspaceItemDB(BaseModel):
     workspace_item_type = Column(String(30), nullable=False)
     workspace_item_key = Column(String, nullable=False)
     name = Column(String, nullable=False)
-    description = Column(String, nullable=False)
-    details = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    details = Column(String, nullable=True)
 
     created_by = Column(String, ForeignKey("user.id"), nullable=False)
     modified_by = Column(String, ForeignKey("user.id"), nullable=False)

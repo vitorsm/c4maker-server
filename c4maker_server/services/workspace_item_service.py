@@ -111,10 +111,6 @@ class WorkspaceItemService:
             missing_fields.append("workspace_item_type")
         if not workspace_item.name:
             missing_fields.append("name")
-        if not workspace_item.details:
-            missing_fields.append("details")
-        if not workspace_item.description:
-            missing_fields.append("description")
         if not workspace_item.key:
             missing_fields.append("key")
         if not workspace_item.workspace or \

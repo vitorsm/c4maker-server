@@ -27,7 +27,7 @@ class WorkspaceItemMapper:
         dto = {
             "id": str(workspace_item.id),
             "workspace": ReducedWorkspaceMapper.to_dto(workspace_item.workspace),
-            "workspace_item_type": workspace_item.workspace_item_type.name,
+            "item_type": workspace_item.workspace_item_type.name,
             "key": workspace_item.key,
             "name": workspace_item.name,
             "description": workspace_item.description,

@@ -90,10 +90,6 @@ def get_diagram_item(workspace_item_model: Model, diagram_model: Model) -> dict:
     return {
         "id": fields.String(required=False),
         "workspace_item": fields.Raw(model=workspace_item_model, required=True),
-        "name": fields.String(required=True),
-        "item_description": fields.String(required=False),
-        "details": fields.String(required=False),
-        "item_type": fields.String(required=True),
         "diagram": fields.Raw(model=diagram_model, required=True),
         "relationships": fields.String(required=False),
         "parent": fields.Raw()

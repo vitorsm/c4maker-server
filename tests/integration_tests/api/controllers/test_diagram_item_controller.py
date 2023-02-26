@@ -17,15 +17,20 @@ class TestDiagramItemController(BaseIntegTest, GenericControllerTest):
 
     def _get_invalid_insert_payload(self) -> dict:
         item = self._get_insert_payload()
-        item["item_type"] = None
+        item["workspace_item"] = None
         return item
 
     def _get_insert_payload(self) -> dict:
         return {
-            "name": "Test name",
-            "item_description": "Test description",
-            "details": "Test details",
-            "item_type": "SOFTWARE_SYSTEM",
+            "workspace_item": {
+                "id": self.get_default_id(),
+                "name": "item 1",
+                "key": "item1",
+                "item_type": "DATABASE",
+                "workspace": {
+                    "id": self.get_default_id()
+                }
+            },
             "diagram": {"id": "00000000-0000-0000-0000-000000000000"},
             "parent": {"id": "00000000-0000-0000-0000-000000000001"}
         }

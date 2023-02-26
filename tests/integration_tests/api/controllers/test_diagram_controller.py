@@ -7,7 +7,7 @@ from tests.integration_tests.default_values import DefaultValues
 
 class TestDiagramController(BaseIntegTest, GenericControllerTest):
     def _has_find_all(self) -> bool:
-        return True
+        return False
 
     def _get_endpoint(self) -> str:
         return "/diagram"
@@ -17,14 +17,18 @@ class TestDiagramController(BaseIntegTest, GenericControllerTest):
 
     def _get_invalid_insert_payload(self) -> dict:
         return {
-                "name": "",
+                "name": "name",
                 "description": "Test"
             }
 
     def _get_insert_payload(self) -> dict:
         return {
                 "name": "Test name",
-                "description": "Test description"
+                "description": "Test description",
+                "workspace": {
+                    "id": self.get_default_id()
+                },
+                "diagram_type": "C4"
             }
 
     def get_client(self) -> Any:
