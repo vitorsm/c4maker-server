@@ -21,7 +21,7 @@ class MySQLWorkspaceRepository(WorkspaceRepository):
     def update(self, workspace: Workspace):
         workspace_db = self.__find_db_obj_by_id(str(workspace.id))
         workspace_db.update_properties(workspace)
-        
+
         self.mysql_client.update(workspace_db)
 
     def delete(self, workspace_id: UUID):
@@ -45,10 +45,10 @@ class MySQLWorkspaceRepository(WorkspaceRepository):
         workspaces_created_by_user = \
             self.mysql_client.db.session.query(WorkspaceDB).filter(WorkspaceDB.created_by == str(user.id))
 
-        workspaces = [user_access_db.workspace.to_entity() for user_access_db in user_accesses_db]
-        workspaces.extend([diagram.to_entity() for diagram in workspaces_created_by_user])
+        workspaces = {user_access_db.workspace.to_entity() for user_access_db in user_accesses_db}
+        workspaces.update({diagram.to_entity() for diagram in workspaces_created_by_user})
 
-        return workspaces
+        return list(workspaces)
 
     def __find_db_obj_by_id(self, workspace_id: str) -> WorkspaceDB:
         return self.mysql_client.db.session.query(WorkspaceDB).get(workspace_id)

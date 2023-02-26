@@ -7,7 +7,7 @@ from c4maker_server.domain.entities.user import User
 
 class UserRepository(metaclass=abc.ABCMeta):
 
-    def create_user(self, user: User):
+    def create(self, user: User):
         raise NotImplementedError
 
     @abc.abstractmethod

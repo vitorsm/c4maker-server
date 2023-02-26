@@ -35,3 +35,14 @@ class TestMySQLDiagramRepository(GenericMySQLTest, BaseIntegTest):
 
     def get_entity_name(self) -> str:
         return "Diagram"
+
+    def test_find_diagrams_by_workspace(self):
+        # given
+        workspace_id = DefaultValues.DEFAULT_ID
+
+        # when
+        diagrams = self.get_repository().find_by_workspace_id(workspace_id)
+
+        # then
+        self.assertEqual(1, len(diagrams))
+        self.compare_obj_properties(self.get_default_entity(), diagrams[0])

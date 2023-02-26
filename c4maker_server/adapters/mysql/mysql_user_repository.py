@@ -12,7 +12,7 @@ class MySQLUserRepository(UserRepository):
     def __init__(self, mysql_client: MySQLClient):
         self.mysql_client = mysql_client
 
-    def create_user(self, user: User):
+    def create(self, user: User):
         user_db = UserDB(user)
         self.mysql_client.add(user_db)
 

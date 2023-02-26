@@ -31,3 +31,16 @@ class TestMySQLWorkspaceItemRepository(GenericMySQLTest, BaseIntegTest):
 
     def get_entity_name(self) -> str:
         return "WorkspaceItem"
+
+    def test_find_all_by_workspace(self):
+        # given
+        workspace_id = DefaultValues.DEFAULT_ID
+
+        # when
+        workspace_items = self.get_repository().find_items_by_workspace(workspace_id)
+
+        # then
+        self.assertEqual(3, len(workspace_items))
+        self.compare_obj_properties(DefaultValues.get_default_workspace_item(), workspace_items[0])
+        self.compare_obj_properties(DefaultValues.get_secondary_workspace_item(), workspace_items[1])
+        self.compare_obj_properties(DefaultValues.get_other_workspace_item(), workspace_items[2])

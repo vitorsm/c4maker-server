@@ -40,3 +40,14 @@ class TestMySQLDiagramItemRepository(GenericMySQLTest, BaseIntegTest):
 
     def get_entity_name(self) -> str:
         return "DiagramItem"
+
+    def test_find_all_by_diagram(self):
+        # given
+        diagram = DefaultValues.get_default_diagram()
+
+        # when
+        diagram_items = self.get_repository().find_all_by_diagram(diagram)
+
+        # then
+        self.assertEqual(3, len(diagram_items))
+        self.compare_obj_properties(DefaultValues.get_default_diagram_item(), diagram_items[0])

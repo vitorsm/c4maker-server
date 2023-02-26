@@ -31,3 +31,14 @@ class TestMySQLWorkspaceRepository(GenericMySQLTest, BaseIntegTest):
 
     def get_entity_name(self) -> str:
         return "Workspace"
+
+    def test_find_workspaces_by_user(self):
+        # given
+        user = DefaultValues.get_default_user()
+
+        # when
+        workspaces = self.get_repository().find_all_by_user(user)
+
+        # then
+        self.assertEqual(1, len(workspaces))
+        self.compare_obj_properties(self.get_default_entity(), workspaces[0])

@@ -1,5 +1,4 @@
 import os
-from copy import deepcopy
 
 from flask_testing import TestCase
 
@@ -9,15 +8,12 @@ import c4maker_server.application.api as api
 api.app = app
 
 from c4maker_server.application import controllers_imports
-import uuid
-from uuid import UUID
 
 from flask import Flask
 
 from c4maker_server.adapters.models import BaseModel
 from c4maker_server.adapters.mysql.mysql_client import MySQLClient
 from c4maker_server.application.api.controllers import dependency_injector, jwt
-from c4maker_server.domain.entities.user import User
 
 
 class BaseIntegTest(TestCase):

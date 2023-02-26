@@ -38,7 +38,7 @@ class MySQLDiagramRepository(DiagramRepository):
         return diagram_db.to_entity()
 
     def find_by_workspace_id(self, workspace_id: UUID) -> List[Diagram]:
-        diagrams_db = self.mysql_client.db.session.query(Diagram).filter(DiagramDB.workspace_id == str(workspace_id))
+        diagrams_db = self.mysql_client.db.session.query(DiagramDB).filter(DiagramDB.workspace_id == str(workspace_id))
         return [diagram_db.to_entity() for diagram_db in diagrams_db]
 
     def __find_db_obj_by_id(self, diagram_id: str) -> DiagramDB:

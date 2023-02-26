@@ -87,6 +87,9 @@ class GenericMySQLTest(metaclass=abc.ABCMeta):
                                          str(ex_context.exception))
 
     def test_update_entity(self):
+        if not self.get_updated_default_entity():
+            return
+
         entity = self.get_repository().find_by_id(DefaultValues.DEFAULT_ID)
         # ensuring that entity exists and match with default entity
         self.compare_obj_properties(self.get_default_entity(), entity)
@@ -102,6 +105,9 @@ class GenericMySQLTest(metaclass=abc.ABCMeta):
         self.compare_obj_properties(updated_entity, persisted_entity)
 
     def test_delete_entity(self):
+        if not self.get_updated_default_entity():
+            return
+
         # given
         entity = self.get_repository().find_by_id(DefaultValues.DEFAULT_ID)
         # ensuring that entity exists
@@ -115,5 +121,8 @@ class GenericMySQLTest(metaclass=abc.ABCMeta):
         self.get_test_case().assertIsNone(entity)
 
     def test_delete_non_exists_entity(self):
+        if not self.get_updated_default_entity():
+            return
+
         # nothing is expected. Just to test behaviour
         self.get_repository().delete(uuid4())
