@@ -11,8 +11,7 @@ class ReducedWorkspaceMapper:
         if not dto:
             return None
 
-        return Workspace(id=utils.str_to_uuid(dto.get("id")), name=dto.get("name"), description=dto.get("description"),
-                         diagrams=list())
+        return Workspace(id=utils.str_to_uuid(dto.get("id")), name=dto.get("name"), description=dto.get("description"))
 
     @staticmethod
     def to_dto(workspace: Workspace) -> Optional[dict]:

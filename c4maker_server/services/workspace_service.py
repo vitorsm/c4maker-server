@@ -42,7 +42,7 @@ class WorkspaceService:
         workspace = self.workspace_repository.find_by_id(workspace_id)
 
         if not workspace:
-            raise EntityNotFoundException("Workspace", workspace.id)
+            raise EntityNotFoundException("Workspace", workspace_id)
 
         if not user.allowed_to_view(workspace):
             raise PermissionException("Workspace", workspace_id, user)

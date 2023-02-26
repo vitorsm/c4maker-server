@@ -21,7 +21,6 @@ class WorkspaceDB(BaseModel):
 
     created_by_obj = relationship("UserDB", foreign_keys="DiagramDB.created_by")
     modified_by_obj = relationship("UserDB", foreign_keys="DiagramDB.modified_by")
-    diagrams = relationship("DiagramDB", lazy="select", cascade="delete")
     workspace_items = relationship("WorkspaceItemDB", lazy="select", cascade="delete")
     user_accesses = relationship("UserAccessDB", lazy="select", cascade="delete")
 
@@ -45,9 +44,6 @@ class WorkspaceDB(BaseModel):
         self.modified_at = workspace.modified_at
 
     def to_entity(self) -> Workspace:
-
-        diagrams = [d.to_entity() for d in self.diagrams]
-
         return Workspace(id=UUID(self.id), name=self.name, description=self.description,
                          created_by=self.created_by_obj.to_entity(), modified_by=self.modified_by_obj.to_entity(),
-                         created_at=self.created_at, modified_at=self.modified_at, diagrams=diagrams)
+                         created_at=self.created_at, modified_at=self.modified_at)

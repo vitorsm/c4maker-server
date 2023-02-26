@@ -1,164 +1,228 @@
 import unittest
 from copy import deepcopy
-from datetime import datetime
+from typing import List
 from unittest.mock import Mock
 from uuid import uuid4
 
-from c4maker_server.domain.entities.diagram import Diagram
-from c4maker_server.domain.entities.user import User
+from parameterized import parameterized
+
+from c4maker_server.domain.entities.diagram import Diagram, DiagramType
 from c4maker_server.domain.entities.user_access import UserAccess, UserPermission
 from c4maker_server.domain.exceptions.entity_not_found_exception import EntityNotFoundException
 from c4maker_server.domain.exceptions.invalid_entity_exception import InvalidEntityException
 from c4maker_server.domain.exceptions.permission_exception import PermissionException
 from c4maker_server.services.diagram_service import DiagramService
+from tests.utils.obj_mother import ObjMother
+
+current_user = ObjMother.generate_random_user()
+workspace1 = ObjMother.generate_random_workspace(user=current_user)
+persisted_diagram1 = ObjMother.generate_random_diagram(workspace=workspace1)
+persisted_diagram2 = ObjMother.generate_random_diagram(workspace=workspace1)
+
+workspace2 = ObjMother.generate_random_workspace()
+persisted_diagram3 = ObjMother.generate_random_diagram(workspace=workspace2)
+
+workspace3 = ObjMother.generate_random_workspace()
+persisted_diagram4 = ObjMother.generate_random_diagram(workspace=workspace3)
+
+workspace4 = ObjMother.generate_random_workspace()
+persisted_diagram5 = ObjMother.generate_random_diagram(workspace=workspace4)
+
+user_access = list()
+user_access.append(UserAccess(workspace=workspace2, permission=UserPermission.EDIT))
+user_access.append(UserAccess(workspace=workspace3, permission=UserPermission.VIEW))
+current_user.user_access = user_access
 
 
 class TestDiagramService(unittest.TestCase):
 
     def setUp(self):
-        self.repository = Mock()
+        self.diagram_repository = Mock()
         self.authentication_repository = Mock()
-        self.service = DiagramService(self.repository, self.authentication_repository)
+        self.workspace_servie = Mock()
+        self.diagram_service = DiagramService(self.diagram_repository, self.authentication_repository,
+                                              self.workspace_servie)
 
-        self.user1 = User(id=uuid4(), name="", login="", password="", shared_diagrams=[])
-        self.user2 = User(id=uuid4(), name="", login="", password="", shared_diagrams=[])
+        self.authentication_repository.get_current_user.return_value = current_user
 
-        self.authentication_repository.get_current_user.return_value = self.user1
+        diagrams = [persisted_diagram1, persisted_diagram2, persisted_diagram3, persisted_diagram4, persisted_diagram5]
 
-        self.diagram1 = Diagram(id=uuid4(), name="Diagram 1", description=None, created_by=self.user2,
-                                created_at=datetime.now(), modified_by=self.user2, modified_at=datetime.now())
-        self.diagram2 = Diagram(id=uuid4(), name="Diagram 1", description=None, created_by=self.user2)
+        self.diagram_repository.find_by_id = \
+            Mock(side_effect=lambda diagram_id: next((d for d in diagrams if d.id == diagram_id), None))
 
-    def test_create_diagram_success(self):
-        diagram = Diagram(id=None, name="Diagram 1", description=None)
-        self.repository.create.return_value = None
+    @parameterized.expand([
+        (Diagram(id=None, name="Diagram 1", description="Desc", workspace=workspace1, diagram_type=DiagramType.C4),),
+        (Diagram(id=None, name="Diagram 1", description=None, workspace=workspace1, diagram_type=DiagramType.TEXT),)
+    ])
+    def test_create_diagram_success(self, diagram: Diagram):
 
-        self.service.create_diagram(diagram)
+        # when
+        self.diagram_service.create_diagram(diagram)
 
-        self.assertEqual(1, self.repository.create.call_count)
+        # then
+        self.diagram_repository.create.assert_called_with(diagram)
         self.assertIsNotNone(diagram.created_by)
         self.assertIsNotNone(diagram.created_at)
         self.assertIsNotNone(diagram.modified_by)
         self.assertIsNotNone(diagram.modified_at)
 
-    def test_create_diagram_without_name(self):
-        diagram = Diagram(id=None, name="", description=None)
-        self.repository.create.return_value = None
+    @parameterized.expand([
+        (Diagram(id=None, name=None, description="Desc", workspace=workspace1, diagram_type=DiagramType.C4), ["name"]),
+        (Diagram(id=None, name="name", description="Desc", workspace=None, diagram_type=DiagramType.C4), ["workspace"]),
+        (Diagram(id=None, name="name", description="Desc", workspace=workspace1, diagram_type=None), ["diagram_type"])
+    ])
+    def test_create_diagram_without_required_fields(self, diagram: Diagram, missing_fields: List[str]):
 
-        with self.assertRaises(InvalidEntityException):
-            self.service.create_diagram(diagram)
+        # when
+        with self.assertRaises(InvalidEntityException) as exception_context:
+            self.diagram_service.create_diagram(diagram)
 
-        self.assertEqual(0, self.repository.create.call_count)
+        self.diagram_repository.create.assert_not_called()
+        self.assertEqual(missing_fields, exception_context.exception.missing_fields)
 
-    def test_update_diagram_owner_success(self):
-        self.repository.update.return_value = None
-        self.repository.find_by_id.return_value = self.diagram1
+    def test_create_diagram_without_workspace_permission(self):
+        # given
+        diagram = Diagram(id=None, name="name", description="Desc", workspace=workspace4, diagram_type=DiagramType.C4)
 
+        # when
+        self.assertRaises(PermissionException, self.diagram_service.create_diagram, diagram)
+
+        # then
+        self.diagram_repository.create.assert_not_called()
+
+    @parameterized.expand([
+        (persisted_diagram1,),
+        (persisted_diagram2,),
+        (persisted_diagram3,)
+    ])
+    def test_update_diagram_success(self, diagram: Diagram):
+        # given
         new_name = "new name"
         new_description = "new description"
-        diagram = Diagram(id=self.diagram1.id, name=new_name, description=new_description)
-        self.authentication_repository.get_current_user.return_value = self.user2
+        diagram = deepcopy(diagram)
+        diagram.name = new_name
+        diagram.description = new_description
 
-        self.service.update_diagram(diagram)
+        # when
+        self.diagram_service.update_diagram(diagram)
 
-        self.assertEqual(1, self.repository.update.call_count)
+        # then
+        self.diagram_repository.update.assert_called_with(diagram)
         self.assertEqual(new_name, diagram.name)
         self.assertEqual(new_description, diagram.description)
-        self.assertIsNotNone(diagram.created_by)
-        self.assertIsNotNone(diagram.created_at)
-        self.assertIsNotNone(diagram.modified_by)
+        self.assertEqual(current_user, diagram.modified_by)
         self.assertIsNotNone(diagram.modified_at)
 
-    def test_update_diagram_shared_success(self):
-        self.repository.update.return_value = None
-        self.repository.find_by_id.return_value = self.diagram1
+    @parameterized.expand([
+        (persisted_diagram4,),
+        (persisted_diagram5,)
+    ])
+    def test_update_diagram_without_permission(self, diagram: Diagram):
+        # given
+        new_name = "new name"
+        new_description = "new description"
+        diagram = deepcopy(diagram)
+        diagram.name = new_name
+        diagram.description = new_description
 
-        # user = deepcopy(self.user1)
-        self.user1.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
+        # when / then
+        self.assertRaises(PermissionException, self.diagram_service.update_diagram, diagram)
 
-        self.service.update_diagram(self.diagram1)
-
-        self.assertEqual(1, self.repository.update.call_count)
-
-    def test_update_diagram_shared_view_failed(self):
-        self.repository.update.return_value = None
-        self.repository.find_by_id.return_value = self.diagram1
-
-        self.user1.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.VIEW)]
-
-        with self.assertRaises(PermissionException):
-            self.service.update_diagram(self.diagram1)
-
-        self.assertEqual(0, self.repository.update.call_count)
-
-    def test_update_diagram_shared_other_edit_failed(self):
-        self.repository.update.return_value = None
-        self.repository.find_by_id.return_value = self.diagram2
-
-        self.user1.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
-
-        with self.assertRaises(PermissionException):
-            self.service.update_diagram(self.diagram2)
-
-        self.assertEqual(0, self.repository.update.call_count)
+        # then
+        self.diagram_repository.update.assert_not_called()
 
     def test_update_diagram_not_found_failed(self):
-        self.repository.update.return_value = None
-        self.repository.find_by_id.return_value = None
-
-        self.user1.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
+        # given
+        diagram = deepcopy(persisted_diagram1)
+        diagram.id = uuid4()
 
         with self.assertRaises(EntityNotFoundException):
-            self.service.update_diagram(self.diagram2)
+            self.diagram_service.update_diagram(diagram)
 
-        self.assertEqual(0, self.repository.update.call_count)
+        self.diagram_repository.update.assert_not_called()
 
-    def test_update_diagram_without_name_failed(self):
-        self.repository.update.return_value = None
-        self.repository.find_by_id.return_value = self.diagram2
+    @parameterized.expand([
+        (Diagram(id=persisted_diagram1.id, name=None, description="Desc", workspace=workspace1,
+                 diagram_type=DiagramType.C4), ["name"]),
+        (Diagram(id=persisted_diagram2.id, name="name", description="Desc", workspace=None,
+                 diagram_type=DiagramType.C4), ["workspace"]),
+        (Diagram(id=persisted_diagram3.id, name="name", description="Desc", workspace=workspace2,
+                 diagram_type=None), ["diagram_type"])
+    ])
+    def test_update_diagram_without_required_fields(self, diagram: Diagram, missing_fields: List[str]):
 
-        diagram = deepcopy(self.diagram2)
-        self.user1.shared_diagrams = [UserAccess(diagram=diagram, permission=UserPermission.EDIT)]
+        # when
+        with self.assertRaises(InvalidEntityException) as exception_context:
+            self.diagram_service.update_diagram(diagram)
 
-        diagram.name = ""
+        self.diagram_repository.update.assert_not_called()
+        self.assertEqual(missing_fields, exception_context.exception.missing_fields)
 
-        with self.assertRaises(InvalidEntityException):
-            self.service.update_diagram(diagram)
+    def test_update_diagram_changing_workspace(self):
+        # given
+        diagram = deepcopy(persisted_diagram1)
+        diagram.workspace = workspace2
 
-        self.assertEqual(0, self.repository.update.call_count)
+        # when
+        self.assertRaises(InvalidEntityException, self.diagram_service.update_diagram, diagram)
 
-    def test_delete_diagram_success(self):
-        diagram_id = self.diagram1.id
-        self.repository.delete.return_value = None
-        self.repository.find_by_id.return_value = self.diagram1
-        self.authentication_repository.get_current_user.return_value = self.user2
+        # then
+        self.diagram_repository.update.assert_not_called()
 
-        self.service.delete_diagram(diagram_id)
+    @parameterized.expand([
+        (persisted_diagram1,),
+        (persisted_diagram2,),
+        (persisted_diagram3,)
+    ])
+    def test_delete_diagram_success(self, diagram: Diagram):
+        # given
+        diagram_id = diagram.id
 
-        self.assertEqual(1, self.repository.delete.call_count)
+        # when
+        self.diagram_service.delete_diagram(diagram_id)
 
-    def test_delete_without_permission(self):
-        diagram_id = self.diagram1.id
+        # then
+        self.diagram_repository.delete.assert_called_with(diagram_id)
 
-        self.user1.id = uuid4()
-        self.user1.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
-        self.repository.delete.return_value = None
-        self.repository.find_by_id.return_value = self.diagram1
+    @parameterized.expand([
+        (persisted_diagram4,),
+        (persisted_diagram5,)
+    ])
+    def test_delete_without_permission(self, diagram: Diagram):
+        # given
+        diagram_id = diagram.id
 
-        with self.assertRaises(PermissionException):
-            self.service.delete_diagram(diagram_id)
+        # when
+        self.assertRaises(PermissionException, self.diagram_service.delete_diagram, diagram_id)
 
-        self.assertEqual(0, self.repository.delete.call_count)
+        # then
+        self.diagram_repository.delete.assert_not_called()
 
     def test_delete_not_found_permission(self):
-        diagram_id = self.diagram1.id
+        # given
+        diagram_id = uuid4()
 
-        self.user1.id = uuid4()
-        self.user1.shared_diagrams = [UserAccess(diagram=self.diagram1, permission=UserPermission.EDIT)]
-        self.repository.delete.return_value = None
-        self.repository.find_by_id.return_value = None
+        # when
+        self.assertRaises(EntityNotFoundException, self.diagram_service.delete_diagram, diagram_id)
 
-        with self.assertRaises(EntityNotFoundException):
-            self.service.delete_diagram(diagram_id)
+        # then
+        self.diagram_repository.delete.assert_not_called()
 
-        self.assertEqual(0, self.repository.delete.call_count)
+    @parameterized.expand([
+        (persisted_diagram1,),
+        (persisted_diagram2,),
+        (persisted_diagram3,)
+    ])
+    def test_find_by_id_with_success(self, diagram: Diagram):
+        # given
+        diagram_id = diagram.id
+
+        # when
+        diagram = self.diagram_service.find_diagram_by_id(diagram_id)
+
+        # then
+        self.assertEqual(diagram_id, diagram.id)
+        self.assertIsNotNone(diagram.name)
+        self.assertIsNotNone(diagram.description)
+        self.assertIsNotNone(diagram.workspace)
+        self.assertIsNotNone(diagram.diagram_type)

@@ -3,15 +3,12 @@ from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
 
-from c4maker_server.domain.entities.diagram import Diagram
-
 
 @dataclass
 class Workspace:
     id: Optional[UUID]
     name: str
     description: Optional[str]
-    diagrams: List[Diagram]
 
     created_by: Optional = field(default=None)
     modified_by: Optional = field(default=None)

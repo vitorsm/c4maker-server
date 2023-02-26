@@ -57,13 +57,17 @@ class DiagramService:
 
     def find_diagrams_by_workspace(self, workspace_id: UUID) -> List[Diagram]:
         self.workspace_service.find_workspace_by_id(workspace_id)
-        return self.diagram_repository.find_by_workspace_id(str(workspace_id))
+        return self.diagram_repository.find_by_workspace_id(workspace_id)
 
     @staticmethod
     def __prepare_to_persist(diagram: Diagram, user: User, is_delete: bool = False,
                              persisted_diagram: Optional[Diagram] = None):
+        # this call is duplicated. Maybe there is a better idea to solve this problem
+        # if we don't check this here, if we don't have a workspace it will raise an unexpected exception
+        DiagramService.__check_required_fields(diagram, persisted_diagram)
+
         WorkspaceService.check_permission_to_persist(persisted_diagram.workspace
-                                                     if persisted_diagram else diagram.workspace, user, is_delete)
+                                                     if persisted_diagram else diagram.workspace, user)
 
         if is_delete:
             return
@@ -79,7 +83,7 @@ class DiagramService:
         DiagramService.__check_required_fields(diagram)
 
     @staticmethod
-    def __check_required_fields(diagram: Diagram):
+    def __check_required_fields(diagram: Diagram, persisted_diagram: Optional[Diagram] = None):
         missing_fields = list()
 
         if not diagram.name:
@@ -88,7 +92,7 @@ class DiagramService:
         if not diagram.diagram_type:
             missing_fields.append("diagram_type")
 
-        if not diagram.workspace:
+        if not diagram.workspace or persisted_diagram and persisted_diagram.workspace != diagram.workspace:
             missing_fields.append("workspace")
 
         if missing_fields:

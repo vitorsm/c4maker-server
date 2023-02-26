@@ -58,7 +58,7 @@ class WorkspaceItemService:
         user = self.authentication_repository.get_current_user()
         workspace_item = self.find_workspace_item_by_id(workspace_item_id, user)
 
-        self.__prepare_to_persist(workspace_item, user)
+        self.__prepare_to_persist(workspace_item, user, is_delete=True)
         self.workspace_item_repository.delete(workspace_item_id)
 
     def find_workspace_item_by_id(self, workspace_item_id: uuid.UUID, user: Optional[User] = None) -> WorkspaceItem:
@@ -86,6 +86,7 @@ class WorkspaceItemService:
 
         workspace_item.workspace = workspace
 
+        WorkspaceItemService.check_missing_fields(workspace_item, persisted_workspace_item)
         self.__check_permission_to_persist(persisted_workspace_item if persisted_workspace_item else workspace_item,
                                            user)
 
@@ -116,11 +117,13 @@ class WorkspaceItemService:
             missing_fields.append("description")
         if not workspace_item.key:
             missing_fields.append("key")
-        if persisted_workspace_item and workspace_item.workspace != persisted_workspace_item.workspace:
+        if not workspace_item.workspace or \
+                persisted_workspace_item and workspace_item.workspace != persisted_workspace_item.workspace:
             missing_fields.append("workspace")
 
         if missing_fields:
             raise InvalidEntityException("WorkspaceItem", missing_fields)
 
-    def __check_permission_to_persist(self, workspace_item: WorkspaceItem, user: User):
-        self.workspace_service.check_permission_to_persist(workspace_item.workspace, user)
+    @staticmethod
+    def __check_permission_to_persist(workspace_item: WorkspaceItem, user: User):
+        WorkspaceService.check_permission_to_persist(workspace_item.workspace, user)

@@ -13,8 +13,7 @@ class WorkspaceMapper:
         if not dto:
             return None
 
-        return Workspace(id=utils.str_to_uuid(dto.get("id")), name=dto.get("name"), description=dto.get("description"),
-                         diagrams=list())
+        return Workspace(id=utils.str_to_uuid(dto.get("id")), name=dto.get("name"), description=dto.get("description"))
 
     @staticmethod
     def to_dto(workspace: Workspace) -> Optional[dict]:
@@ -24,8 +23,7 @@ class WorkspaceMapper:
         dto = {
             "id": str(workspace.id),
             "name": workspace.name,
-            "description": workspace.description,
-            "diagrams": [DiagramMapper.to_dto(diagram) for diagram in workspace.diagrams] if workspace.diagrams else []
+            "description": workspace.description
         }
 
         GenericMapper.to_dto(workspace, dto)
