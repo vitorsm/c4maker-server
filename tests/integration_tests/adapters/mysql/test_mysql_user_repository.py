@@ -64,12 +64,32 @@ class TestMySQLUserRepository(BaseIntegTest):
         # then
         GenericMySQLTest.compare_obj_properties(self, default_user, persisted_user)
 
+    def test_find_user_by_login(self):
+        # given
+        default_user = DefaultValues.get_default_user()
+
+        # when
+        persisted_user = self.repository.find_by_login(default_user.login)
+
+        # then
+        GenericMySQLTest.compare_obj_properties(self, default_user, persisted_user)
+
     def test_find_entity_not_found(self):
         # given
         not_existing_id = uuid.uuid4()
 
         # when
         entity = self.repository.find_by_id(not_existing_id)
+
+        # then
+        self.assertIsNone(entity)
+
+    def test_find_entity_not_found_by_login(self):
+        # given
+        not_existing_login = "not_existing_id"
+
+        # when
+        entity = self.repository.find_by_login(not_existing_login)
 
         # then
         self.assertIsNone(entity)
