@@ -2,13 +2,13 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import Column, String, ForeignKey, DateTime
+from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from c4maker_server.adapters.models import DiagramItemRelationshipDB
 from c4maker_server.adapters.models.base_model import BaseModel
 from c4maker_server.domain.entities.diagram import Diagram
-from c4maker_server.domain.entities.diagram_item import DiagramItem, DiagramItemType
+from c4maker_server.domain.entities.diagram_item import DiagramItem
 
 
 class DiagramItemDB(BaseModel):

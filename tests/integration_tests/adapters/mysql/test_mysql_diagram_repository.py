@@ -2,10 +2,12 @@ from typing import Any
 from unittest import TestCase
 
 from c4maker_server.adapters.mysql.mysql_diagram_repository import MySQLDiagramRepository
-from c4maker_server.domain.entities.diagram import Diagram
+from c4maker_server.domain.entities.diagram import Diagram, DiagramType
 from c4maker_server.utils import date_utils
 from tests.integration_tests.adapters.mysql.generic_mysql_test import GenericMySQLTest
 from tests.integration_tests.base_integ_test import BaseIntegTest
+from tests.integration_tests.default_values import DefaultValues
+from tests.utils.obj_mother import ObjMother
 
 
 class TestMySQLDiagramRepository(GenericMySQLTest, BaseIntegTest):
@@ -25,10 +27,7 @@ class TestMySQLDiagramRepository(GenericMySQLTest, BaseIntegTest):
         return self
 
     def get_default_entity(self) -> Any:
-        created_at = date_utils.str_iso_to_date("2022-01-01T07:44:42.000")
-
-        return Diagram(id=self.DEFAULT_ID, name="Diagram 1", description="Desc 1", created_by=self.DEFAULT_USER,
-                       modified_by=self.DEFAULT_USER, created_at=created_at, modified_at=created_at)
+        return DefaultValues.get_default_diagram()
 
     def get_updated_default_entity(self) -> Any:
         default_entity = self.get_default_entity()

@@ -31,13 +31,14 @@ def get_diagram_model(reduced_user_model: Model, reduced_workspace_model: Model)
     return generic
 
 
-def get_workspace_model(reduced_user_model: Model) -> dict:
+def get_workspace_model(reduced_user_model: Model, reduced_workspace_model: Model) -> dict:
     generic = __get_generic_entity_model(reduced_user_model)
     generic.update({
         "id": fields.String(required=False),
         "name": fields.String(required=True),
         "description": fields.String(required=True),
-        "diagrams": fields.List(get_diagram_model(reduced_user_model), required=False)
+        "diagrams": fields.List(fields.Raw(model=get_diagram_model(reduced_user_model, reduced_workspace_model)),
+                                required=False)
     })
 
     return generic

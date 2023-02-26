@@ -1,10 +1,12 @@
 import uuid
 import random
 import string
+from datetime import datetime
 from enum import Enum
 from typing import Optional, List, Type
 
 from c4maker_server.domain.entities.diagram import DiagramType, Diagram
+from c4maker_server.domain.entities.diagram_item import DiagramItem
 from c4maker_server.domain.entities.user import User
 from c4maker_server.domain.entities.user_access import UserAccess
 from c4maker_server.domain.entities.workspace import Workspace
@@ -25,7 +27,7 @@ class ObjMother:
     @staticmethod
     def generate_random_user(user_id: Optional[uuid.UUID] = None, name: Optional[str] = None,
                              login: Optional[str] = None, password: Optional[str] = None,
-                             user_access: Optional[List[UserAccess]] = None):
+                             user_access: Optional[List[UserAccess]] = None) -> User:
         if not user_id:
             user_id = uuid.uuid4()
 
@@ -53,7 +55,7 @@ class ObjMother:
     @staticmethod
     def generate_random_diagram(diagram_id: Optional[uuid.UUID] = None, name: Optional[str] = None,
                                 description: Optional[str] = None, workspace: Optional[Workspace] = None,
-                                diagram_type: Optional[DiagramType] = None):
+                                diagram_type: Optional[DiagramType] = None) -> Diagram:
         if not diagram_id:
             diagram_id = uuid.uuid4()
         if name is None:
@@ -72,7 +74,9 @@ class ObjMother:
     def generate_random_workspace_item(w_id: Optional[uuid.UUID] = None, key: Optional[str] = None,
                                        name: Optional[str] = None, description: Optional[str] = None,
                                        details: Optional[str] = None, workspace: Optional[Workspace] = None,
-                                       w_type: Optional[WorkspaceItemType] = None, user: Optional[User] = None) -> WorkspaceItem:
+                                       w_type: Optional[WorkspaceItemType] = None,
+                                       user: Optional[User] = None,
+                                       created_at: Optional[datetime] = None) -> WorkspaceItem:
         if not w_id:
             w_id = uuid.uuid4()
         if name is None:
@@ -89,4 +93,24 @@ class ObjMother:
             w_type = ObjMother.get_random_enum_value(WorkspaceItemType)
 
         return WorkspaceItem(id=w_id, name=name, description=description, details=details, workspace=workspace,
-                             workspace_item_type=w_type, key=key, created_by=user, modified_by=user)
+                             workspace_item_type=w_type, key=key, created_by=user, modified_by=user,
+                             created_at=created_at)
+
+    @staticmethod
+    def generate_random_diagram_item(di_id: Optional[uuid.UUID] = None,
+                                     workspace_item: Optional[WorkspaceItem] = None,
+                                     workspace: Optional[Workspace] = None,
+                                     diagram: Optional[Diagram] = None) -> DiagramItem:
+        if not di_id:
+            di_id = uuid.uuid4()
+        if not workspace:
+            if diagram and diagram.workspace:
+                workspace = diagram.workspace
+            else:
+                workspace = ObjMother.generate_random_workspace()
+        if not diagram:
+            diagram = ObjMother.generate_random_diagram(workspace=workspace)
+        if not workspace_item:
+            workspace_item = ObjMother.generate_random_workspace_item(workspace=workspace)
+
+        return DiagramItem(id=di_id, workspace_item=workspace_item, diagram=diagram)

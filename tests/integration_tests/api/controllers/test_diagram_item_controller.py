@@ -2,6 +2,7 @@ from typing import Any
 
 from tests.integration_tests.api.controllers.generic_controller_test import GenericControllerTest
 from tests.integration_tests.base_integ_test import BaseIntegTest
+from tests.integration_tests.default_values import DefaultValues
 
 
 class TestDiagramItemController(BaseIntegTest, GenericControllerTest):
@@ -33,10 +34,10 @@ class TestDiagramItemController(BaseIntegTest, GenericControllerTest):
         return self.client
 
     def get_default_id(self) -> str:
-        return self.default_id
+        return str(DefaultValues.DEFAULT_ID)
 
     def get_not_persisted_id(self) -> str:
-        return self.not_persisted_id
+        return str(DefaultValues.NOT_PERSISTED_ID)
 
     def setUp(self):
         self.create_app()

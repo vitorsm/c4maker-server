@@ -17,7 +17,7 @@ namespace = api.namespace("", description="C4 maker API", authorizations=authori
 
 reduced_user_model = api.model("ReducedUser", models.get_reduced_user_model())
 reduced_workspace_model = api.model("ReducedWorkspace", models.get_reduced_workspace_model(reduced_user_model))
-workspace_model = api.model("Workspace", models.get_workspace_model(reduced_user_model))
+workspace_model = api.model("Workspace", models.get_workspace_model(reduced_user_model, reduced_workspace_model))
 workspace_item_model = api.model("WorkspaceItem", models.get_workspace_item(reduced_user_model,
                                                                             reduced_workspace_model))
 

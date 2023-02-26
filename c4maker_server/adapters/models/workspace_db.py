@@ -19,8 +19,8 @@ class WorkspaceDB(BaseModel):
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     modified_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
-    created_by_obj = relationship("UserDB", foreign_keys="DiagramDB.created_by")
-    modified_by_obj = relationship("UserDB", foreign_keys="DiagramDB.modified_by")
+    created_by_obj = relationship("UserDB", foreign_keys="WorkspaceDB.created_by")
+    modified_by_obj = relationship("UserDB", foreign_keys="WorkspaceDB.modified_by")
     workspace_items = relationship("WorkspaceItemDB", lazy="select", cascade="delete")
     user_accesses = relationship("UserAccessDB", lazy="select", cascade="delete")
 

@@ -18,12 +18,11 @@ from c4maker_server.services.workspace_service import WorkspaceService
 class DiagramItemService:
     def __init__(self, diagram_item_repository: DiagramItemRepository,
                  authentication_repository: AuthenticationRepository,
-                 diagram_service: DiagramService, workspace_service: WorkspaceService,
+                 diagram_service: DiagramService,
                  workspace_item_service: WorkspaceItemService):
         self.diagram_item_repository = diagram_item_repository
         self.diagram_service = diagram_service
         self.authentication_repository = authentication_repository
-        self.workspace_service = workspace_service
         self.workspace_item_service = workspace_item_service
 
     def create_diagram_item(self, diagram_item: DiagramItem):
@@ -66,9 +65,10 @@ class DiagramItemService:
 
     def find_diagram_items_by_diagram(self, diagram_id: UUID) -> List[DiagramItem]:
         user = self.authentication_repository.get_current_user()
-        diagram = self.diagram_service.find_diagram_by_id(diagram_id, user)
 
-        if not user.allowed_to_view(diagram.workspace):
+        try:
+            diagram = self.diagram_service.find_diagram_by_id(diagram_id, user)
+        except PermissionException:
             raise PermissionException("Diagram", diagram_id, user)
 
         return self.diagram_item_repository.find_all_by_diagram(diagram)
@@ -91,6 +91,8 @@ class DiagramItemService:
         diagram_item.diagram = diagram
         diagram_item.parent = parent_diagram_item
 
+        DiagramItemService.__check_missing_fields(diagram_item, persisted_diagram_item)
+
         # todo - if the diagram is null, we will have an exception
         self.__check_permission_to_persist(persisted_diagram_item if persisted_diagram_item else diagram_item, user)
 
@@ -107,12 +109,13 @@ class DiagramItemService:
         missing_fields = []
         persisted_workspace_item = persisted_diagram_item.workspace_item if persisted_diagram_item else None
 
-        if persisted_diagram_item and diagram_item.diagram != persisted_diagram_item.diagram:
+        if not diagram_item.diagram or \
+                persisted_diagram_item and diagram_item.diagram != persisted_diagram_item.diagram:
             missing_fields.append("diagram")
-        if not diagram_item.diagram:
-            missing_fields.append("diagram")
+
         # todo - test this condition
-        if not diagram_item.workspace_item or diagram_item.workspace_item.workspace != diagram_item.diagram.workspace:
+        if not diagram_item.workspace_item or \
+                diagram_item.diagram and diagram_item.workspace_item.workspace != diagram_item.diagram.workspace:
             missing_fields.append("workspace_item")
         else:
             try:
@@ -126,5 +129,6 @@ class DiagramItemService:
         if missing_fields:
             raise InvalidEntityException("DiagramItem", missing_fields)
 
-    def __check_permission_to_persist(self, diagram_item: DiagramItem, user: User):
-        self.workspace_service.check_permission_to_persist(diagram_item.diagram.workspace, user)
+    @staticmethod
+    def __check_permission_to_persist(diagram_item: DiagramItem, user: User):
+        WorkspaceService.check_permission_to_persist(diagram_item.diagram.workspace, user)

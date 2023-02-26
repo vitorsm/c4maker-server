@@ -40,8 +40,9 @@ class DependenciesInjector(Module):
         workspace_service = WorkspaceService(workspace_repository, authentication_repository)
         workspace_item_service = WorkspaceItemService(workspace_item_repository, authentication_repository,
                                                       workspace_service)
-        diagram_service = DiagramService(diagram_repository, authentication_repository)
-        diagram_item_service = DiagramItemService(diagram_item_repository, authentication_repository, diagram_service)
+        diagram_service = DiagramService(diagram_repository, authentication_repository, workspace_service)
+        diagram_item_service = DiagramItemService(diagram_item_repository, authentication_repository, diagram_service,
+                                                  workspace_item_service)
         user_service = UserService(user_repository, BCryptEncryptionService(), authentication_repository)
 
         binder.bind(MySQLClient, to=mysql_client, scope=singleton)
