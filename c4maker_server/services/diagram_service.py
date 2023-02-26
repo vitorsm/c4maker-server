@@ -23,21 +23,21 @@ class DiagramService:
         self.workspace_service = workspace_service
 
     def create_diagram(self, diagram: Diagram):
-        DiagramService.__prepare_to_persist(diagram, self.authentication_repository.get_current_user())
+        self.__prepare_to_persist(diagram, self.authentication_repository.get_current_user())
         self.diagram_repository.create(diagram)
 
     def update_diagram(self, diagram: Diagram):
         user = self.authentication_repository.get_current_user()
         persisted_diagram = self.find_diagram_by_id(diagram.id, user)
 
-        DiagramService.__prepare_to_persist(diagram, user, persisted_diagram=persisted_diagram)
+        self.__prepare_to_persist(diagram, user, persisted_diagram=persisted_diagram)
         self.diagram_repository.update(diagram)
 
     def delete_diagram(self, diagram_id: UUID):
         user = self.authentication_repository.get_current_user()
 
         diagram = self.find_diagram_by_id(diagram_id, user)
-        DiagramService.__prepare_to_persist(diagram, user, is_delete=True)
+        self.__prepare_to_persist(diagram, user, is_delete=True)
 
         self.diagram_repository.delete(diagram_id)
 
@@ -59,12 +59,14 @@ class DiagramService:
         self.workspace_service.find_workspace_by_id(workspace_id)
         return self.diagram_repository.find_by_workspace_id(workspace_id)
 
-    @staticmethod
-    def __prepare_to_persist(diagram: Diagram, user: User, is_delete: bool = False,
+    def __prepare_to_persist(self, diagram: Diagram, user: User, is_delete: bool = False,
                              persisted_diagram: Optional[Diagram] = None):
         # this call is duplicated. Maybe there is a better idea to solve this problem
         # if we don't check this here, if we don't have a workspace it will raise an unexpected exception
         DiagramService.__check_required_fields(diagram, persisted_diagram)
+
+        diagram.workspace = self.workspace_service.find_workspace_by_id(diagram.workspace.id, user) \
+            if not persisted_diagram else persisted_diagram.workspace
 
         WorkspaceService.check_permission_to_persist(persisted_diagram.workspace
                                                      if persisted_diagram else diagram.workspace, user)

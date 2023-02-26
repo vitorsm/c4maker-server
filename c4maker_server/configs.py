@@ -1,6 +1,6 @@
 import os
 
-DB_URL = os.getenv("DB_URL", "localhost:3306/c4_maker")
+DB_URL = os.getenv("DB_URL", "localhost:3306/c4_maker_v2")
 DB_USERNAME = os.getenv("DB_USERNAME", "user")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "")
 

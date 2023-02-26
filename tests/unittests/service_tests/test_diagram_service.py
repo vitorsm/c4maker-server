@@ -45,8 +45,11 @@ class TestDiagramService(unittest.TestCase):
 
         self.authentication_repository.get_current_user.return_value = current_user
 
-        diagrams = [persisted_diagram1, persisted_diagram2, persisted_diagram3, persisted_diagram4, persisted_diagram5]
+        workspaces = [workspace1, workspace2, workspace3, workspace4]
+        self.workspace_servie.find_workspace_by_id = \
+            Mock(side_effect=lambda w_id, _: next((w for w in workspaces if w.id == w_id), None))
 
+        diagrams = [persisted_diagram1, persisted_diagram2, persisted_diagram3, persisted_diagram4, persisted_diagram5]
         self.diagram_repository.find_by_id = \
             Mock(side_effect=lambda diagram_id: next((d for d in diagrams if d.id == diagram_id), None))
 
