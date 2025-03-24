@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from parameterized import parameterized
 
+from c4maker_server.domain.entities.c4_diagram_item import C4DiagramItem
 from c4maker_server.domain.entities.diagram import Diagram
 from c4maker_server.domain.entities.diagram_item import DiagramItem
 from c4maker_server.domain.entities.user_access import UserAccess, UserPermission
@@ -76,9 +77,9 @@ class TestDiagramItemService(unittest.TestCase):
         self.diagram_item_repository.create.assert_called_with(diagram_item)
 
     @parameterized.expand([
-        (DiagramItem(id=None, workspace_item=None, diagram=diagram1), ["workspace_item"]),
-        (DiagramItem(id=None, workspace_item=workspace_item1, diagram=None), ["diagram"]),
-        (DiagramItem(id=None, workspace_item=workspace_item1, diagram=diagram3), ["workspace_item"])
+        (C4DiagramItem(id=None, workspace_item=None, diagram=diagram1), ["workspace_item"]),
+        (C4DiagramItem(id=None, workspace_item=workspace_item1, diagram=None), ["diagram"]),
+        (C4DiagramItem(id=None, workspace_item=workspace_item1, diagram=diagram3), ["workspace_item"])
     ])
     def test_create_item_diagram_missing_fields(self, diagram_item: DiagramItem, missing_fields: List[str]):
 
@@ -102,10 +103,10 @@ class TestDiagramItemService(unittest.TestCase):
         self.diagram_item_repository.update.assert_called_with(diagram_item)
 
     @parameterized.expand([
-        (DiagramItem(id=persisted_item1.id, workspace_item=None, diagram=diagram1), ["workspace_item"]),
-        (DiagramItem(id=persisted_item1.id, workspace_item=workspace_item1, diagram=None), ["diagram"]),
-        (DiagramItem(id=persisted_item3.id, workspace_item=workspace_item1, diagram=diagram3), ["workspace_item"]),
-        (DiagramItem(id=persisted_item1.id, workspace_item=workspace_item1, diagram=diagram11), ["diagram"])
+        (C4DiagramItem(id=persisted_item1.id, workspace_item=None, diagram=diagram1), ["workspace_item"]),
+        (C4DiagramItem(id=persisted_item1.id, workspace_item=workspace_item1, diagram=None), ["diagram"]),
+        (C4DiagramItem(id=persisted_item3.id, workspace_item=workspace_item1, diagram=diagram3), ["workspace_item"]),
+        (C4DiagramItem(id=persisted_item1.id, workspace_item=workspace_item1, diagram=diagram11), ["diagram"])
     ])
     def test_update_diagram_item_without_required_fields(self, diagram_item: DiagramItem, missing_fields: List[str]):
         # when

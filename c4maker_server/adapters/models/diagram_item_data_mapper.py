@@ -30,7 +30,8 @@ class DiagramItemDataMapper:
                                     height=position_dto.get("height"))
 
         c4_item = C4DiagramItem(id=diagram_item.id, workspace_item=diagram_item.workspace_item,
-                                diagram=diagram_item.diagram, relationships=diagram_item.relationships)
+                                diagram=diagram_item.diagram, relationships=diagram_item.relationships,
+                                parent=diagram_item.parent)
         c4_item.position = position
         c4_item.color = data.get("color") if data else None
 

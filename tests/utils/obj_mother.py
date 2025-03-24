@@ -5,6 +5,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional, List, Type
 
+from c4maker_server.domain.entities.c4_diagram_item import C4DiagramItem
 from c4maker_server.domain.entities.diagram import DiagramType, Diagram
 from c4maker_server.domain.entities.diagram_item import DiagramItem
 from c4maker_server.domain.entities.user import User
@@ -113,4 +114,4 @@ class ObjMother:
         if not workspace_item:
             workspace_item = ObjMother.generate_random_workspace_item(workspace=workspace)
 
-        return DiagramItem(id=di_id, workspace_item=workspace_item, diagram=diagram)
+        return C4DiagramItem(id=di_id, workspace_item=workspace_item, diagram=diagram)
