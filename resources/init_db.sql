@@ -79,6 +79,8 @@ CREATE TABLE diagram_item (
     diagram_id VARCHAR(36) NOT NULL,
     parent_id VARCHAR(36) NULL,
     workspace_item_id VARCHAR(36) NOT NULL,
+    diagram_item_type INT NOT NULL,
+    item_data JSON NULL,
 
     PRIMARY KEY(id),
     FOREIGN KEY(diagram_id) REFERENCES diagram(id) ON DELETE CASCADE,

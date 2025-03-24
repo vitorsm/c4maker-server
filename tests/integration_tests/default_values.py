@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 
+from c4maker_server.domain.entities.c4_diagram_item import ItemPosition, C4DiagramItem
 from c4maker_server.domain.entities.diagram import Diagram, DiagramType
 from c4maker_server.domain.entities.diagram_item import DiagramItem
 from c4maker_server.domain.entities.diagram_item_relationship import DiagramItemRelationship
@@ -97,5 +98,11 @@ class DefaultValues:
         another_diagram_item = DefaultValues.get_other_diagram_item()
         relationship = [DiagramItemRelationship(diagram_item=another_diagram_item, description="uses",
                                                 details="details")]
-        return DiagramItem(id=DefaultValues.DEFAULT_ID, workspace_item=DefaultValues.get_default_workspace_item(),
-                           diagram=DefaultValues.get_default_diagram(), relationships=relationship)
+        position = ItemPosition(x=1, y=1, width=10, height=10)
+        diagram_item = C4DiagramItem(id=DefaultValues.DEFAULT_ID,
+                                     workspace_item=DefaultValues.get_default_workspace_item(),
+                                     diagram=DefaultValues.get_default_diagram(), relationships=relationship)
+        diagram_item.position = position
+        diagram_item.color = "white"
+
+        return diagram_item

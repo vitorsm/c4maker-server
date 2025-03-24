@@ -57,7 +57,7 @@ class WorkspaceById(Resource):
         dependency_injector.get(WorkspaceService).update_workspace(workspace)
 
         return WorkspaceMapper.to_dto(workspace), 200
-
+# 70-71,76-82,94-100,106,131,139
     @jwt_required()
     @namespace.doc(security="Bearer")
     def delete(self, workspace_id: str):

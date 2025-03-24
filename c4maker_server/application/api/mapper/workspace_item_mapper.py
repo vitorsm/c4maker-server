@@ -15,7 +15,7 @@ class WorkspaceItemMapper:
 
         return WorkspaceItem(id=utils.str_to_uuid(dto.get("id")),
                              workspace=ReducedWorkspaceMapper.to_entity(dto.get("workspace")),
-                             workspace_item_type=WorkspaceItem.instantiate_item_type_by_name(dto.get("item_type")),
+                             workspace_item_type=WorkspaceItem.instantiate_item_type_by_name(dto.get("workspace_item_type")),
                              key=dto.get("key"), name=dto.get("name"), description=dto.get("description"),
                              details=dto.get("details"))
 
@@ -27,7 +27,7 @@ class WorkspaceItemMapper:
         dto = {
             "id": str(workspace_item.id),
             "workspace": ReducedWorkspaceMapper.to_dto(workspace_item.workspace),
-            "item_type": workspace_item.workspace_item_type.name,
+            "workspace_item_type": workspace_item.workspace_item_type.name,
             "key": workspace_item.key,
             "name": workspace_item.name,
             "description": workspace_item.description,

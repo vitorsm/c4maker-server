@@ -2,6 +2,7 @@ import uuid
 from typing import Optional, List
 from uuid import UUID
 
+from c4maker_server.domain.entities.c4_diagram_item import C4DiagramItem
 from c4maker_server.domain.entities.diagram_item import DiagramItem
 from c4maker_server.domain.entities.user import User
 from c4maker_server.domain.entities.workspace_item import WorkspaceItem
@@ -13,6 +14,9 @@ from c4maker_server.services.ports.authentication_repository import Authenticati
 from c4maker_server.services.ports.diagram_item_repository import DiagramItemRepository
 from c4maker_server.services.workspace_item_service import WorkspaceItemService
 from c4maker_server.services.workspace_service import WorkspaceService
+
+
+VALID_DIAGRAM_ITEM_INSTANCES = [C4DiagramItem]
 
 
 class DiagramItemService:
@@ -81,6 +85,9 @@ class DiagramItemService:
 
     def __prepare_to_persist(self, diagram_item: DiagramItem, user: User, is_delete: bool = False,
                              persisted_diagram_item: Optional[DiagramItem] = None):
+        if not any(isinstance(diagram_item, instance) for instance in VALID_DIAGRAM_ITEM_INSTANCES):
+            raise InvalidEntityException("DiagramItem", ['diagram_item_type'])
+
         diagram = self.diagram_service.find_diagram_by_id(diagram_item.diagram.id, user) \
             if diagram_item.diagram else None
         parent_diagram_item = self.find_diagram_item_by_id(diagram_item.parent.id, user) \

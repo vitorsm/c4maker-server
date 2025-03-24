@@ -1,6 +1,5 @@
 import unittest
 from copy import deepcopy
-from datetime import datetime
 from typing import List
 from unittest.mock import Mock
 from uuid import uuid4
@@ -9,7 +8,6 @@ from parameterized import parameterized
 
 from c4maker_server.domain.entities.diagram import Diagram
 from c4maker_server.domain.entities.diagram_item import DiagramItem
-from c4maker_server.domain.entities.user import User
 from c4maker_server.domain.entities.user_access import UserAccess, UserPermission
 from c4maker_server.domain.exceptions.entity_not_found_exception import EntityNotFoundException
 from c4maker_server.domain.exceptions.invalid_entity_exception import InvalidEntityException

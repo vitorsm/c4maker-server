@@ -1,6 +1,6 @@
 import abc
 import json
-from typing import Any, Optional, Union
+from typing import Optional, Union
 
 from flask.testing import FlaskClient
 from werkzeug.test import TestResponse
@@ -129,7 +129,7 @@ class GenericControllerTest(metaclass=abc.ABCMeta):
         response = self._post_item(self._get_insert_payload())
         response_dto = json.loads(response.data.decode())
 
-        self.assertEqual(201, response.status_code)
+        self.assertEqual(201, response.status_code, response.data.decode())
         self.__assert_each_item(response_dto)
         self.__assert_dicts(self._get_insert_payload(), response_dto)
 

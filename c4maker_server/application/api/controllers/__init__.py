@@ -15,6 +15,7 @@ api = Api(app, version=configs.VERSION, title="C4 maker API", description="C4 ma
 authorizations = {"Bearer": {"type": "apiKey", "in": "header", "name": "Authorization"}}
 namespace = api.namespace("", description="C4 maker API", authorizations=authorizations)
 
+reduced_entity_model = api.model("ReducedEntity", models.get_reduced_entity_model())
 reduced_user_model = api.model("ReducedUser", models.get_reduced_user_model())
 reduced_workspace_model = api.model("ReducedWorkspace", models.get_reduced_workspace_model(reduced_user_model))
 workspace_model = api.model("Workspace", models.get_workspace_model(reduced_user_model, reduced_workspace_model))
@@ -24,7 +25,9 @@ workspace_item_model = api.model("WorkspaceItem", models.get_workspace_item(redu
 diagram_model = api.model("Diagram", models.get_diagram_model(reduced_user_model, reduced_workspace_model))
 user_access_model = api.model("UserAccess", models.get_user_access_model(reduced_workspace_model))
 user_model = api.model("User", models.get_user_model(user_access_model))
-diagram_item_model = api.model("DiagramItem", models.get_diagram_item(workspace_item_model, diagram_model))
+diagram_relationship_model = api.model("DiagramItemRelationship", models.get_relationship_model(reduced_entity_model))
+diagram_item_model = api.model("DiagramItem", models.get_diagram_item(workspace_item_model, diagram_model,
+                                                                      diagram_relationship_model, reduced_entity_model))
 
 jwt = authentication_utils.fill_jwt_auth_function(app, dependency_injector)
 

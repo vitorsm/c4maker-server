@@ -1,11 +1,26 @@
 from flask_restx import fields, Api, Model
 
 
+class NullableRaw(fields.Raw):
+    __schema_type__ = ['object', 'null']
+
+    def format(self, value):
+        if value and not isinstance(value, dict):
+            raise ValueError("Invalid value for nullable object %s".format(value))
+
+        return value
+
 def get_reduced_user_model() -> dict:
     return {
         "id": fields.String(required=False),
         "name": fields.String(required=True),
         "login": fields.String(required=True)
+    }
+
+
+def get_reduced_entity_model() -> dict:
+    return {
+        "id": fields.String(required=True)
     }
 
 
@@ -36,7 +51,7 @@ def get_workspace_model(reduced_user_model: Model, reduced_workspace_model: Mode
     generic.update({
         "id": fields.String(required=False),
         "name": fields.String(required=True),
-        "description": fields.String(required=True),
+        "description": fields.String(required=False),
         "diagrams": fields.List(fields.Raw(model=get_diagram_model(reduced_user_model, reduced_workspace_model)),
                                 required=False)
     })
@@ -86,11 +101,21 @@ def get_user_model(user_access_model: Model) -> dict:
     return user
 
 
-def get_diagram_item(workspace_item_model: Model, diagram_model: Model) -> dict:
+def get_relationship_model(reduced_entity_model: Model) -> dict:
+    return {
+        "diagram_item": fields.Raw(model=reduced_entity_model, required=True),
+        "description": fields.String(required=False),
+        "details": fields.String(required=False)
+    }
+
+def get_diagram_item(workspace_item_model: Model, diagram_model: Model, relationship_model: Model,
+                     reduced_entity_model: Model) -> dict:
     return {
         "id": fields.String(required=False),
         "workspace_item": fields.Raw(model=workspace_item_model, required=True),
         "diagram": fields.Raw(model=diagram_model, required=True),
-        "relationships": fields.String(required=False),
-        "parent": fields.Raw()
+        "relationships": fields.List(fields.Raw(required=False, model=relationship_model), required=False),
+        "diagram_item_type": fields.String(required=True),
+        "parent": NullableRaw(required=False, model=reduced_entity_model),
+        "data": fields.Raw(required=True)
     }

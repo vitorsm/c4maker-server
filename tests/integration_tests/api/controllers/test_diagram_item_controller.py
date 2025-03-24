@@ -26,13 +26,23 @@ class TestDiagramItemController(BaseIntegTest, GenericControllerTest):
                 "id": self.get_default_id(),
                 "name": "item 1",
                 "key": "item1",
-                "item_type": "DATABASE",
+                "workspace_item_type": "DATABASE",
                 "workspace": {
                     "id": self.get_default_id()
                 }
             },
             "diagram": {"id": "00000000-0000-0000-0000-000000000000"},
-            "parent": {"id": "00000000-0000-0000-0000-000000000001"}
+            "parent": {"id": "00000000-0000-0000-0000-000000000001"},
+            "diagram_item_type": "C4",
+            "data": {
+                "position": {
+                    "x": 1,
+                    "y": 1,
+                    "width": 10,
+                    "height": 10
+                },
+                "color": "white"
+            }
         }
 
     def get_client(self) -> Any:
