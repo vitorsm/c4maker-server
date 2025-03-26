@@ -1,6 +1,7 @@
 from typing import Optional
 
 from c4maker_server.application.api.mapper.diagram_item_relationship_mapper import DiagramItemRelationshipMapper
+from c4maker_server.application.api.mapper.item_position_mapper import ItemPositionMapper
 from c4maker_server.application.api.mapper.reduced_diagram_item_mapper import ReducedDiagramItemMapper
 from c4maker_server.domain.entities.c4_diagram_item import C4DiagramItem, ItemPosition
 from c4maker_server.domain.entities.diagram import Diagram, DiagramType
@@ -42,17 +43,8 @@ class DiagramItemMapper:
     def __to_c4_dto(diagram_item: C4DiagramItem, dto: dict) -> dict:
         dto["diagram_item_type"] = DiagramType.C4.name
 
-        position_dto = None
-        if diagram_item.position:
-            position_dto = {
-                "x": diagram_item.position.x,
-                "y": diagram_item.position.y,
-                "width": diagram_item.position.width,
-                "height": diagram_item.position.height
-            }
-
         dto["data"] = {
-            "position": position_dto,
+            "position": ItemPositionMapper.to_dto(diagram_item.position),
             "color": diagram_item.color
         }
 
@@ -65,13 +57,8 @@ class DiagramItemMapper:
                                 parent=diagram_item.parent)
 
         item_data = dto.get("data")
-        position = None
-        position_dto = item_data.get("position")
-        if position_dto:
-            position = ItemPosition(x=position_dto.get("x"), y=position_dto.get("y"), width=position_dto.get("width"),
-                                    height=position_dto.get("height"))
 
-        c4_item.position = position
+        c4_item.position = ItemPositionMapper.to_entity(item_data.get("position"))
         c4_item.color = item_data.get("color")
 
         return c4_item

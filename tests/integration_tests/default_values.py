@@ -1,10 +1,11 @@
 import uuid
 from datetime import datetime
 
+
 from c4maker_server.domain.entities.c4_diagram_item import ItemPosition, C4DiagramItem
+from c4maker_server.domain.entities.c4_diagram_item_relationship import C4DiagramItemRelationship
 from c4maker_server.domain.entities.diagram import Diagram, DiagramType
 from c4maker_server.domain.entities.diagram_item import DiagramItem
-from c4maker_server.domain.entities.diagram_item_relationship import DiagramItemRelationship
 from c4maker_server.domain.entities.user import User
 from c4maker_server.domain.entities.user_access import UserAccess, UserPermission
 from c4maker_server.domain.entities.workspace import Workspace
@@ -96,12 +97,15 @@ class DefaultValues:
     @staticmethod
     def get_default_diagram_item() -> DiagramItem:
         another_diagram_item = DefaultValues.get_other_diagram_item()
-        relationship = [DiagramItemRelationship(diagram_item=another_diagram_item, description="uses",
-                                                details="details")]
+        relationship = C4DiagramItemRelationship(diagram_item=another_diagram_item, description="uses",
+                                                 details="details")
+        relationship.from_position = ItemPosition(x=1, y=1, width=10, height=10)
+        relationship.to_position = ItemPosition(x=1, y=1, width=10, height=10)
+
         position = ItemPosition(x=1, y=1, width=10, height=10)
         diagram_item = C4DiagramItem(id=DefaultValues.DEFAULT_ID,
                                      workspace_item=DefaultValues.get_default_workspace_item(),
-                                     diagram=DefaultValues.get_default_diagram(), relationships=relationship)
+                                     diagram=DefaultValues.get_default_diagram(), relationships=[relationship])
         diagram_item.position = position
         diagram_item.color = "white"
 

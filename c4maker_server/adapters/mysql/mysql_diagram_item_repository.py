@@ -35,13 +35,13 @@ class MySQLDiagramItemRepository(DiagramItemRepository):
         if not diagram_item_db:
             return None
 
-        return diagram_item_db.to_entity(None)
+        return diagram_item_db.to_entity(None, fill_relationships=True)
 
     def find_all_by_diagram(self, diagram: Diagram) -> List[DiagramItem]:
         diagram_items_db = self.mysql_client.db.session.query(DiagramItemDB) \
             .filter(DiagramItemDB.diagram_id == str(diagram.id))
 
-        return [d.to_entity(diagram) for d in diagram_items_db]
+        return [d.to_entity(diagram, fill_relationships=True) for d in diagram_items_db]
 
     def __find_db_obj_by_id(self, diagram_item_id: str) -> DiagramItemDB:
         return self.mysql_client.db.session.query(DiagramItemDB).get(diagram_item_id)

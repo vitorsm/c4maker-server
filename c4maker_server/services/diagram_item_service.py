@@ -85,6 +85,7 @@ class DiagramItemService:
 
     def __prepare_to_persist(self, diagram_item: DiagramItem, user: User, is_delete: bool = False,
                              persisted_diagram_item: Optional[DiagramItem] = None):
+
         if not any(isinstance(diagram_item, instance) for instance in VALID_DIAGRAM_ITEM_INSTANCES):
             raise InvalidEntityException("DiagramItem", ['diagram_item_type'])
 
@@ -107,6 +108,7 @@ class DiagramItemService:
             return
 
         DiagramItemService.__check_missing_fields(diagram_item, persisted_diagram_item)
+        DiagramItemService.__check_relationship_consistency(diagram_item)
 
         if not persisted_diagram_item:
             diagram_item.id = uuid.uuid4()
@@ -135,6 +137,18 @@ class DiagramItemService:
 
         if missing_fields:
             raise InvalidEntityException("DiagramItem", missing_fields)
+
+    @staticmethod
+    def __check_relationship_consistency(diagram_item: DiagramItem):
+        # todo - check if the diagram item in relationship is a valid entity
+        if not diagram_item.relationships:
+            return
+
+        has_relationship_with_different_type = any(relationship.DIAGRAM_ITEM_TYPE != diagram_item.DIAGRAM_ITEM_TYPE
+                                                   for relationship in diagram_item.relationships)
+
+        if has_relationship_with_different_type:
+            raise InvalidEntityException("DiagramItem", ['relationships'])
 
     @staticmethod
     def __check_permission_to_persist(diagram_item: DiagramItem, user: User):

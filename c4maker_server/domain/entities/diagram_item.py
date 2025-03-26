@@ -14,8 +14,10 @@ class DiagramItem:
     id: Optional[UUID]
     workspace_item: WorkspaceItem
     diagram: Diagram
-    relationships: List[DiagramItemRelationship] = field(default=list)
+    relationships: List[DiagramItemRelationship] = field(default_factory=list)
     parent: Optional['DiagramItem'] = field(default=None)
+
+    DIAGRAM_ITEM_TYPE = None
 
     def __eq__(self, other: 'DiagramItem'):
         return isinstance(other, DiagramItem) and self.id == other.id

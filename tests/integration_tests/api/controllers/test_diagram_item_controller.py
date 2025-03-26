@@ -42,7 +42,31 @@ class TestDiagramItemController(BaseIntegTest, GenericControllerTest):
                     "height": 10
                 },
                 "color": "white"
-            }
+            },
+            "relationships": [
+                {
+                    "diagram_item": {
+                        "id": "00000000-0000-0000-0000-000000000001"
+                    },
+                    "description": "Description",
+                    "details": "Details",
+                    "diagram_type": "C4",
+                    "data": {
+                        "from_position": {
+                            "x": 1,
+                            "y": 1,
+                            "width": 10,
+                            "height": 10
+                        },
+                        "to_position": {
+                            "x": 1,
+                            "y": 1,
+                            "width": 10,
+                            "height": 10
+                        }
+                    }
+                }
+            ]
         }
 
     def get_client(self) -> Any:

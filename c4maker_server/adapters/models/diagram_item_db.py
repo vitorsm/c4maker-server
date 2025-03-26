@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 
 from c4maker_server.adapters.models import DiagramItemRelationshipDB
 from c4maker_server.adapters.models.base_model import BaseModel
-from c4maker_server.adapters.models.diagram_item_data_mapper import DiagramItemDataMapper
+from c4maker_server.adapters.mapper.diagram_item_data_mapper import DiagramItemDataMapper
 from c4maker_server.domain.entities.diagram import Diagram
 from c4maker_server.domain.entities.diagram_item import DiagramItem
 
@@ -22,11 +22,11 @@ class DiagramItemDB(BaseModel):
 
     relationships = relationship("DiagramItemRelationshipDB",
                                  foreign_keys="DiagramItemRelationshipDB.from_diagram_item_id", lazy="select",
-                                 cascade="all, delete-orphan")
+                                 cascade="all, delete, delete-orphan")
 
     workspace_item_obj = relationship("WorkspaceItemDB", foreign_keys="DiagramItemDB.workspace_item_id")
     parent = relationship("DiagramItemDB", foreign_keys="DiagramItemDB.parent_id", lazy="select", remote_side=[id])
-    diagram = relationship("DiagramDB", lazy="select", cascade="all,delete")
+    diagram = relationship("DiagramDB", lazy="select")
 
     def __init__(self, diagram_item: DiagramItem):
         self.update_properties(diagram_item)
@@ -49,11 +49,15 @@ class DiagramItemDB(BaseModel):
         else:
             self.relationships = [DiagramItemRelationshipDB(r, diagram_item) for r in diagram_item.relationships]
 
-    def to_entity(self, diagram: Optional[Diagram]) -> DiagramItem:
+    def to_entity(self, diagram: Optional[Diagram], fill_relationships: bool = False) -> DiagramItem:
         if not diagram:
             diagram = self.diagram.to_entity()
 
-        relationships = [r.to_entity() for r in self.relationships]
+        if fill_relationships:
+            relationships = [r.to_entity() for r in self.relationships]
+        else:
+            relationships = []
+
         parent = None
         if self.parent_id:
             parent_db = self.parent[0] if isinstance(self.parent, list) else self.parent

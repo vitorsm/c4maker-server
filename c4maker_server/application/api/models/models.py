@@ -1,4 +1,5 @@
 from flask_restx import fields, Api, Model
+from pkg_resources import require
 
 
 class NullableRaw(fields.Raw):
@@ -105,7 +106,9 @@ def get_relationship_model(reduced_entity_model: Model) -> dict:
     return {
         "diagram_item": fields.Raw(model=reduced_entity_model, required=True),
         "description": fields.String(required=False),
-        "details": fields.String(required=False)
+        "details": fields.String(required=False),
+        "diagram_type": fields.String(required=True),
+        "data": fields.Raw(required=True)
     }
 
 def get_diagram_item(workspace_item_model: Model, diagram_model: Model, relationship_model: Model,

@@ -93,8 +93,10 @@ CREATE TABLE diagram_item_relationship (
     to_diagram_item_id VARCHAR(36) NOT NULL,
     description VARCHAR(100) NOT NULL,
     details VARCHAR(255) NULL,
+    diagram_type INT NOT NULL,
+    data JSON NULL,
 
     PRIMARY KEY (from_diagram_item_id, to_diagram_item_id, description),
-    FOREIGN KEY (from_diagram_item_id) REFERENCES diagram_item(id),
-    FOREIGN KEY (to_diagram_item_id) REFERENCES diagram_item(id)
+    FOREIGN KEY (from_diagram_item_id) REFERENCES diagram_item(id) ON DELETE CASCADE,
+    FOREIGN KEY (to_diagram_item_id) REFERENCES diagram_item(id) ON DELETE CASCADE
 );

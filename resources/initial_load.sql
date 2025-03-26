@@ -20,5 +20,5 @@ INSERT INTO diagram_item (id, diagram_id, parent_id, workspace_item_id, diagram_
 ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000000', null, '00000000-0000-0000-0000-000000000001', 1, '{"position": {"x": 1, "y": 1, "width": 10, "height": 10}, "color": "white"}'),
 ('00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', 1, '{"position": {"x": 1, "y": 1, "width": 10, "height": 10}, "color": "white"}');
 
-INSERT INTO diagram_item_relationship (from_diagram_item_id, to_diagram_item_id, description, details) VALUES
-('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000002', 'uses', 'details');
+INSERT INTO diagram_item_relationship (from_diagram_item_id, to_diagram_item_id, description, details, diagram_type, data) VALUES
+('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000002', 'uses', 'details', 1, '{"from_position": {"x": 1, "y": 1, "width": 10, "height": 10}, "to_position": {"x": 1, "y": 1, "width": 10, "height": 10}}');
