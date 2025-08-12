@@ -13,6 +13,8 @@ class WorkspaceItemType(enum.Enum):
     DATABASE = 3
     CONTAINER = 4
     COMPONENT = 5
+    WEB_CONTAINER = 6
+    MOBILE_CONTAINER = 7
 
 
 @dataclass

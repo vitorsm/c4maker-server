@@ -64,4 +64,6 @@ class DiagramItemsByDiagramEntityController(Resource):
         diagram_id = utils.str_to_uuid(diagram_id)
         diagram_items = dependency_injector.get(DiagramItemService).find_diagram_items_by_diagram(diagram_id)
 
-        return [DiagramItemMapper.to_dto(diagram_item) for diagram_item in diagram_items]
+        dtos = DiagramItemMapper.to_dtos(diagram_items)
+        return dtos
+        # return [DiagramItemMapper.to_dto(diagram_item) for diagram_item in diagram_items]

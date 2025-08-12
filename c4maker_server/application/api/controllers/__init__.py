@@ -1,4 +1,4 @@
-from flask_restx import Api
+from flask_restx import Api, fields
 from injector import Injector
 
 from c4maker_server import configs
@@ -28,6 +28,7 @@ user_model = api.model("User", models.get_user_model(user_access_model))
 diagram_relationship_model = api.model("DiagramItemRelationship", models.get_relationship_model(reduced_entity_model))
 diagram_item_model = api.model("DiagramItem", models.get_diagram_item(workspace_item_model, diagram_model,
                                                                       diagram_relationship_model, reduced_entity_model))
+diagram_item_model['children'] = fields.List(fields.Nested(diagram_item_model))
 
 jwt = authentication_utils.fill_jwt_auth_function(app, dependency_injector)
 

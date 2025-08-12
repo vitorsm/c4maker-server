@@ -120,5 +120,6 @@ def get_diagram_item(workspace_item_model: Model, diagram_model: Model, relation
         "relationships": fields.List(fields.Raw(required=False, model=relationship_model), required=False),
         "diagram_item_type": fields.String(required=True),
         "parent": NullableRaw(required=False, model=reduced_entity_model),
+        "children": fields.List(fields.Raw, required=True),
         "data": fields.Raw(required=True)
     }
